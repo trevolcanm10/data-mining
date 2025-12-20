@@ -12,4 +12,4 @@ Análisis y modelado para predecir fuga de clientes en telecomunicaciones.
 
 ### 📌 Apuestas Deportivas – Modelo Predictivo
 Modelado estadístico aplicado a partidos de fútbol para estimación de probabilidades.  
-👉 [Ver proyecto](Apuestas_Futbol/)
+👉 [Ver proyecto](Apuestas_Under/)
