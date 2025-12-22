@@ -3,13 +3,24 @@
 -- ================================
 PRAGMA foreign_keys = ON;
 
--- ================================
--- 1️⃣ Crear tabla staging
--- ================================
-DROP TABLE IF EXISTS staging_superstore;
+---================================
+--- Poblar categories
+---================================
+INSERT INTO categories (category,sub_category)
+SELECT DISTINCT category, sub_category
+FROM staging_superstore;
 
-CREATE TABLE staging_superstore(
+---=======================
+--- Poblar Regions
+---=======================
+INSERT INTO regions (country,region,state,city,postal_code)
+SELECT DISTINCT country, region , state , city , postal_code
+FROM staging_superstore;
 
+---=======================
+--- Poblar Customers
+---=======================
+INSERT INTO customers (customer_id,customer_name,segment)
+SELECT DISTINCT customer_id, customer_name, segment
+FROM staging_superstore;
 
-
-);
