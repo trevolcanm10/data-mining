@@ -74,3 +74,39 @@ SELECT DISTINCT
     region_id,
     region
 FROM regions;
+
+-- =======================
+-- Validación del modelo
+-- =======================
+-- Conteo Base
+SELECT COUNT(*) FROM order_details; 
+SELECT COUNT(*) FROM fact_sales;
+
+--Duplicados en dimensiones
+SELECT order_date, COUNT(*)
+FROM dim_date
+GROUP BY order_date
+HAVING COUNT(*) > 1;
+
+
+SELECT product_id, COUNT(*)
+FROM dim_product
+GROUP BY product_id
+HAVING COUNT(*) > 1;
+
+SELECT category_id, COUNT(*)
+FROM dim_category
+GROUP BY category_id
+HAVING COUNT(*) > 1;
+
+SELECT region_id, COUNT(*)
+FROM dim_region
+GROUP BY region_id
+HAVING COUNT(*) > 1;
+
+-- VENTAS TOTALES
+SELECT SUM(sales) FROM order_details;
+SELECT SUM(sales) FROM fact_sales;
+
+
+SELECT * FROM dim_region;
