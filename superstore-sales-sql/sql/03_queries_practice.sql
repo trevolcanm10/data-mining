@@ -98,7 +98,52 @@ running_total AS(
         SELECT
                 customer_name,
                 total_sales,
-                
+                SUM(total_sales) OVER (ORDER BY total_sales DESC) AS cumulative_sales,
+                SUM(total_sales) OVER () AS overall_sales
+        FROM customer_sales
 )
+SELECT
+        customer_name,
+        ROUND(total_sales,2) AS total_sales,
+        ROUND(100.0 * cumulative_sales / overall_sales,2) AS cumulative_percentage
+FROM running_total
+WHERE cumulative_sales <= overall_sales * 0.8;
 
+--Ventas promedio por pedido
+SELECT
+        ROUND(AVG(order_total),2) AS avg_sales_per_oder
+FROM(
+        SELECT
+                o.order_id,
+                SUM(od.sales) AS order_total
+        FROM order_details od 
+        JOIN orders o ON od.order_id = o.order_id
+        GROUP BY o.order_id
+
+);
 PRAGMA table_info(orders);
+
+--Dias con mayores ventas
+SELECT
+        o.order_date,
+        ROUND(SUM(od.sales),2) AS daily_sales
+FROM order_details od 
+JOIN orders o ON od.order_id = o.order_id
+GROUP BY o.order_date
+ORDER BY daily_sales DESC
+LIMIT 10;
+
+--Querie para exportar CSV a Power BI
+SELECT  
+        o.order_id,
+        o.order_date,
+        c.category,
+        c.sub_category,
+        r.region,
+        od.sales
+FROM order_details od 
+JOIN orders o ON od.order_id = o.order_id
+JOIN products p  ON od.product_id = p.product_id
+JOIN categories c ON p.category_id = c.category_id
+JOIN regions r ON o.region_id = r.region_id;
+
