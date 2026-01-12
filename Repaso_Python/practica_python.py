@@ -42,3 +42,22 @@ def validar_datos(elementos):
     return val_enteros
 
 print(validar_datos(elementos))
+
+
+
+#Ahora trabajaremos con diccionarios complejos
+usuarios = [
+    {"nombre":"Ana","edad":23},
+    {"nombre": "Luis", "edad": 17},
+    {"nombre": "Carlos", "edad": 30},
+    {"nombre": "María", "edad": 15}
+]
+
+def mayor_edad(usuarios):
+    mayores = []
+    for valores in usuarios:
+        if valores["edad"] >= 18:
+            mayores.append(valores)
+    return mayores
+
+print(mayor_edad(usuarios))
