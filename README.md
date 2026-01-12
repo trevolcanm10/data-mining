@@ -9,6 +9,14 @@ Análisis y modelado para predecir fuga de clientes en telecomunicaciones.
 👉 [Ver proyecto](Predicción_Churn/)
 
 ---
+
+### 📌 Análisis de Ventas con SQL + Power BI
+Proyecto analítico que transforma datos transaccionales de ventas en insights estratégicos mediante consultas SQL avanzadas y visualización en Power BI.  
+**Objetivos:** identificar productos rentables, tendencias temporales, clientes clave y oportunidades de mejora.  
+**Herramientas:** SQLite, Power BI, GitHub.  
+👉 [Ver proyecto](superstore-sales-sql/)
+
+---
 <table>
 <tr>
 <td>
