@@ -89,3 +89,81 @@ def usuario_completo(d_usuarios):
     return usario_verificado
     
 print(usuario_completo(d_usuarios))
+
+
+#Devolver el promedio de edades validas
+datos =  [
+    {"nombre": "Denilson", "edad": 26},
+    {"nombre": "Zamir", "edad": 24},
+    {"nombre": "Sebastian", "edad": 21},
+    {"nombre": "Diego", "edad": 21},
+    {"nombre": "Dayana", "edad": 23},
+    {"nombre": "Renzo", "edad": 22},
+    {"nombre": "Kiara"},
+    {"nombre": "Kelly", "edad":None},
+    {"edad":40}
+]
+
+
+def validar_datos(datos):
+    edad_validas = []
+    for valores in datos:
+        
+        nombre = valores.get("nombre")
+        edad = valores.get("edad")
+        
+        if nombre is None or not isinstance(edad,int):
+            continue
+        
+        if edad >= 0:
+            edad_validas.append(valores)
+    
+    return edad_validas
+    
+def promedio_edad(edades):
+    promedio = 0
+    suma = 0
+    for valor in edades:
+        edad = valor.get("edad")
+        suma  = suma + edad
+    
+    promedio = suma/len(edades)
+    
+    return promedio
+print(validar_datos(datos))
+print(promedio_edad(validar_datos(datos)))
+
+#Iterando diccionarios
+datos =  [
+    {"nombre": "Denilson", "edad": 15},
+    {"nombre": "Zamir", "edad": 24},
+    {"nombre": "Sebastian", "edad": 21},
+    {"nombre": "Diego", "edad": 21},
+    {"nombre": "Dayana", "edad": 12},
+    {"nombre": "Renzo", "edad": 14},
+    {"nombre": "Kiara"},
+    {"nombre": "Kelly", "edad":None},
+    {"edad":40}
+]
+
+
+def crear_usuario(datos):
+    nombre = datos.get("nombre")
+    edad = datos.get("edad")
+    
+    #validaciones
+    if not isinstance(nombre,str) or not isinstance(edad,int):
+        return None
+    
+    if edad < 0:
+        return None
+    
+    return {
+        "nombre":nombre,
+        "edad": edad
+    }
+    
+
+for persona in datos:
+    usuarios = crear_usuario(persona)
+    print(usuarios)
