@@ -167,3 +167,47 @@ def crear_usuario(datos):
 for persona in datos:
     usuarios = crear_usuario(persona)
     print(usuarios)
+    
+    
+
+#Funcion registrar producto
+productos = [
+    {"nombre": "Laptop", "precio": 3500.50, "stock": 5},
+    {"nombre": "Mouse", "precio": 45.90, "stock": 30},
+    {"nombre": "Teclado", "precio": 120.00, "stock": 20},
+    # Datos “sucios”
+    {"nombre": "Monitor", "precio": None, "stock": 8},          # precio faltante
+    {"nombre": "Audífonos", "precio": 95.50, "stock": None},    # stock faltante
+    {"nombre": None, "precio": 35.00, "stock": 50},             # nombre faltante
+    {"precio": 420.99, "stock": 10},                             # sin nombre
+    {"nombre": "Impresora", "stock": 3},                          # sin precio
+    {"nombre": "Webcam", "precio": 150.75},                       # sin stock
+    {"nombre": "Parlantes", "precio": -80.00, "stock": 4},       # precio inválido (negativo)
+    {"nombre": "Tablet", "precio": 900.00, "stock": -2},         # stock inválido (negativo)
+    {"nombre": "Cargador", "precio": "25", "stock": 40},         # precio mal tipeado (string)
+    {"nombre": 123, "precio": 15.00, "stock": 10},               # nombre mal tipeado (int)
+]
+
+
+def registrar_producto(productos):
+    nombre = productos.get("nombre")
+    precio = productos.get("precio")
+    stock = productos.get("stock")
+    
+    #validaciones
+    if not isinstance(nombre,str) or not isinstance(precio,float) or not isinstance(stock,int):
+        return None
+    
+    if precio < 0 or stock < 0:
+        return None
+    
+    return {
+        "nombre":nombre,
+        "precio": precio,
+        "stock" : stock
+    }
+    
+
+for pro in productos:
+    elementos = registrar_producto(pro)
+    print(elementos)
