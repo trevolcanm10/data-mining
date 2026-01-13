@@ -61,3 +61,31 @@ def mayor_edad(usuarios):
     return mayores
 
 print(mayor_edad(usuarios))
+
+
+
+#Ahora trabajamos con diccionarios sucios
+d_usuarios = [
+   {"nombre":"Ana","Edad":23},
+   {"nombre":"Luis"},
+   {"nombre":"Carlos","Edad":None},
+   {"nombre":"Maria","Edad":15},
+   {"edad":40} 
+]
+
+
+def usuario_completo(d_usuarios):
+    
+    usario_verificado = []
+    for valor in d_usuarios:
+        nombre = valor.get('nombre')
+        edad = valor.get('Edad')
+        
+        if nombre is None or not isinstance(edad,int):
+            continue
+        
+        if edad >=18:
+            usario_verificado.append(valor)
+    return usario_verificado
+    
+print(usuario_completo(d_usuarios))
