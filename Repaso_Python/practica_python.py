@@ -211,3 +211,52 @@ def registrar_producto(productos):
 for pro in productos:
     elementos = registrar_producto(pro)
     print(elementos)
+    
+#Promedio de edad validadas
+usuarios = [
+    {"nombre": "Denilson", "edad": 15},
+    {"nombre": "Zamir", "edad": 24},
+    {"nombre": "Sebastian", "edad": 21},
+    {"nombre": "Diego", "edad": 21},
+
+    # Datos sucios
+    {"nombre": "Dayana", "edad": None},        # edad faltante
+    {"nombre": None, "edad": 18},              # nombre faltante
+    {"edad": 30},                              # sin nombre
+    {"nombre": "Renzo"},                       # sin edad
+    {"nombre": "Kiara", "edad": -5},           # edad inválida (negativa)
+    {"nombre": "Kelly", "edad": "20"},         # edad mal tipeada (string)
+    {"nombre": 123, "edad": 22},               # nombre mal tipeado (int)
+    {"nombre": "Luis", "edad": 15.5},          # edad mal tipeada (float)
+    {"nombre": "", "edad": 19},                # nombre vacío
+    {"nombre": "Ana", "edad": 0},              # borde: edad 0 (según tu lógica puede ser inválido)
+]
+
+
+def validar_usuarios(usuarios):
+    usuarios_validos = []
+    for valor in usuarios:
+        nombre = valor.get("nombre")
+        edad = valor.get("edad")
+        
+        if not isinstance(nombre,str) or not isinstance(edad,int):
+            continue
+        if edad > 0:
+            usuarios_validos.append(valor)
+    return usuarios_validos
+    
+
+def promedio_edad(edades):
+    suma = 0
+    promedio = 0 
+    for valor in edades: 
+        edad = valor.get("edad")
+        suma = suma + edad
+    
+    promedio = suma/len(edades)
+    
+    return promedio
+
+print(validar_usuarios(usuarios))
+print("El promedio de la edad:")
+print(promedio_edad(validar_usuarios(usuarios)))
