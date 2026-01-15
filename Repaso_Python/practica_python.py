@@ -260,3 +260,67 @@ def promedio_edad(edades):
 print(validar_usuarios(usuarios))
 print("El promedio de la edad:")
 print(promedio_edad(validar_usuarios(usuarios)))
+
+
+#Productos - Simulación de una API
+productos = [
+    # Datos correctos
+    {"producto": "Laptop", "cantidad": 5, "precio_unitario": 3500.50},
+    {"producto": "Mouse", "cantidad": 20, "precio_unitario": 45.90},
+    {"producto": "Teclado", "cantidad": 10, "precio_unitario": 120.00},
+
+    # Datos sucios
+    {"producto": "Monitor", "cantidad": None, "precio_unitario": 800.00},     # cantidad faltante
+    {"producto": "Impresora", "cantidad": 3, "precio_unitario": None},        # precio faltante
+    {"producto": None, "cantidad": 7, "precio_unitario": 150.00},             # producto faltante
+    {"cantidad": 4, "precio_unitario": 60.00},                                # sin producto
+    {"producto": "Webcam", "precio_unitario": 90.00},                         # sin cantidad
+    {"producto": "Parlantes", "cantidad": 5},                                 # sin precio
+    {"producto": "Tablet", "cantidad": -2, "precio_unitario": 900.00},        # cantidad inválida (negativa)
+    {"producto": "USB", "cantidad": 10, "precio_unitario": -15.00},           # precio inválido (negativo)
+    {"producto": "Cargador", "cantidad": "5", "precio_unitario": 25.00},      # cantidad mal tipeada (string)
+    {"producto": "Funda", "cantidad": 3, "precio_unitario": "30"},            # precio mal tipeado (string)
+    {"producto": 123, "cantidad": 2, "precio_unitario": 50.00},               # producto mal tipeado (int)
+    {"producto": "", "cantidad": 1, "precio_unitario": 10.00},                # producto vacío
+]
+
+def registrar_pedido_api(productos):
+    
+    try:
+        producto = productos["producto"]
+        cantidad = int(productos["cantidad"])
+        precio = float(productos["precio_unitario"])
+    except(KeyError,TypeError,ValueError):
+        return{
+            "status":"error",
+            "message":"Datos inválidos"
+        }
+        
+    if not isinstance(producto,str) or producto.strip() == "":
+        return{
+            "status":"error",
+            "message":"Producto inválido"
+        }
+    if cantidad <= 0 :
+        return{
+            "status": "error",
+            "message": "Producto inválido"
+        }
+    if precio <= 0:
+        return{
+            "status": "error",
+            "message": "producto inválido"
+        }
+    return{
+        "status":"success",
+        "productos":{
+            "producto":producto,
+            "cantidad": cantidad,
+            "precio": precio,
+            "total" : cantidad * precio
+        }
+    }
+    
+
+for producto in productos:
+    print(registrar_pedido_api(producto))
