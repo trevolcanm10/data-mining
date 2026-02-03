@@ -1,17 +1,23 @@
-"""
-app.py - Streamlit App Principal
-"""
+
 import streamlit as st
-import pandas as pd
-import numpy as np
-import plotly.express as px #Creación de gráficos
-import plotly.graph_objects as go #Plotly Express sirve para crear gráficos interactivos de manera rápida
-from datetime import datetime #Para manejar fechas y horas
-import time #Para medir el tiempo o pausas
-import sys #Sys permite interactuar con el sistema
-import os #Para interactuar con archivos y carpetas del sistema
+from components.sidebar import show_sidebar
+from components.header import show_header
+from config import setup_page
+# Configurar página
+st.set_page_config(
+    page_title="Predictor Premier League GRATIS",
+    page_icon="⚽",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-#Añadimos utils al path
-sys.path.append(os.path.join(os.path.dirname(__file__),'utils'))
 
-from utils.predictor import predictor
+#Aplicando CSS Global
+setup_page()
+#Llamaremos al header
+show_header()
+#Llamamos al Sidebar
+show_sidebar()
+
+st.title("Premier League Predictor")
+st.write("Usa el menú lateral para navegar.")
