@@ -1,1 +1,11 @@
+# Credenciales
 .env
+
+# Archivos de sistema y Python
+__pycache__/
+*.pyc
+.DS_Store
+
+# Carpetas de entorno virtual
+env/
+venv/

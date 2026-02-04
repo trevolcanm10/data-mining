@@ -1,24 +1,25 @@
 # components/prediction_card.py
 import streamlit as st
 
+
 def show_prediction_card(prediction, home_team, away_team):
     """Muestra card bonita con resultado"""
-    
+
     # Determinar color según confianza
-    if prediction['confidence'] > 70:
+    if prediction["confidence"] > 70:
         bg_color = "linear-gradient(135deg, #00b09b 0%, #96c93d 100%)"
-    elif prediction['confidence'] > 50:
+    elif prediction["confidence"] > 50:
         bg_color = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
     else:
         bg_color = "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
-    
+
     # Mapear resultado a texto
     result_text = {
-        'home': f' {home_team} GANA',
-        'draw': ' EMPATE',
-        'away': f' {away_team} GANA'
+        "home": f" {home_team} GANA",
+        "draw": " EMPATE",
+        "away": f" {away_team} GANA",
     }
-    
+
     html = f"""
     <div style='
         background: {bg_color};
@@ -48,5 +49,5 @@ def show_prediction_card(prediction, home_team, away_team):
         </div>
     </div>
     """
-    
+
     st.markdown(html, unsafe_allow_html=True)
