@@ -134,7 +134,7 @@ if not fixtures_df.empty:
                 st.switch_page("pages/_Predictor.py")
 
 # Información adicional
-st.markdown("---")
+st.markdown("")
 st.info("""
 **ℹ️ Información:**
 - Los partidos se actualizan automáticamente cada 24 horas

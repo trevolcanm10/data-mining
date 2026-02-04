@@ -9,7 +9,6 @@ def show_sidebar():
         st.image("https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg", 
                  width=150)
         
-        st.title("⚙️ Configuración")
         st.markdown("---")
         
         # Cargar equipos (una sola vez)
@@ -34,7 +33,7 @@ def show_sidebar():
         st.info("""
         **Cómo funciona:**
         1. Selecciona 2 equipos
-        2. Click en PRE DECIR
+        2. Click en PREDICCIÓN
         3. IA analiza datos históricos
         4. Recibe predicción + análisis
         
@@ -44,7 +43,3 @@ def show_sidebar():
         - NP-xG (sin penales)
         - Últimos 20 partidos
         """)
-        
-        # Info de versión
-        st.markdown("---")
-        st.caption("v1.0 • Python 3.12 • Actualizado hoy")

@@ -6,11 +6,23 @@ def setup_page():
     st.markdown("""
     <style>
         .main-header {
-            font-size: 3.2rem;
-            color: #FF4B4B;
-            text-align: center;
-            margin-bottom: 0.5rem;
-            font-weight: 800;
+            margin: 0 ;
+            font-size: 28px;
+        }
+        
+        img{
+            max-width: 100%;
+            height: auto;
+            opacity : 0.5;
+            transition: opacity 0.4s ease;
+        }
+        
+        img:hover{
+            opacity: 1;
+        }
+        
+        .logo{
+            border-radius: 0%;
         }
         .sub-header {
             text-align: center;
@@ -30,5 +42,35 @@ def setup_page():
             padding-top: 1.5rem;
             border-top: 2px solid #eee;
         }
+            
+        .team-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .team-row img {
+            width: 50px;
+            height: 50px;
+        }
+        .team-row span {
+            font-weight: bold;
+            font-size: 16px;
+        }    
+        
+        div.stButton > button {
+            background-color: #1E90FF;  /* Azul */
+            color: white;               /* Texto blanco */
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;         /* Bordes redondeados */
+            padding: 10px 0px;
+        }
+        
+        div.stButton > button:hover {
+            background-color: #104E8B;  /* Azul oscuro al pasar el mouse */
+        }
+
     </style>
     """, unsafe_allow_html=True)

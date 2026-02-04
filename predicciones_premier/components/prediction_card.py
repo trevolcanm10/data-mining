@@ -29,7 +29,7 @@ def show_prediction_card(prediction, home_team, away_team):
         text-align: center;
         box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     '>
-        <h2 style='color: white; margin-bottom: 1rem;'>🎯 PREDICCIÓN FINAL</h2>
+        <h2 style='color: white; margin-bottom: 1rem;'> PREDICCIÓN FINAL</h2>
         <div style='font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;'>
             {home_team.upper()} <span style='opacity: 0.8;'>VS</span> {away_team.upper()}
         </div>
@@ -44,7 +44,7 @@ def show_prediction_card(prediction, home_team, away_team):
             font-size: 1.3rem;
             margin-top: 0.5rem;
         '>
-            🎯 Confianza: <strong>{prediction['confidence']}%</strong>
+            Confianza: <strong>{prediction['confidence']}%</strong>
         </div>
     </div>
     """
