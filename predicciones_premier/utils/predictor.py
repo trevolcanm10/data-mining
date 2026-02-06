@@ -10,8 +10,10 @@ import os
 import pandas as pd
 import numpy as np
 import requests
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 warnings.filterwarnings("ignore")
 
@@ -26,11 +28,13 @@ class PremierLeaguePredictor:
         self.historical_df = None
         self.team_stats_home = None
         self.team_stats_away = None
+        self.le = None
+        self.model = None
         self.team_mapping = self._load_team_mapping()
-        
 
         self.load_historical_data()
         self.build_team_stats()
+        self.train_model()
 
     def _load_team_mapping(self):
         "Mapeo de nombres API vs Understat"
@@ -100,8 +104,11 @@ class PremierLeaguePredictor:
                 "xG_home": "mean",
                 "deep_home": "mean",
                 "npxG_home": "mean",
+                "npxGA_home": "mean",
                 "xGA_home": "mean",
                 "deep_allowed_home": "mean",
+                "pts_home": "mean",
+                "xpts_home": "mean"
             }
         )
 
@@ -110,8 +117,11 @@ class PremierLeaguePredictor:
                 "xG_away": "mean",
                 "deep_away": "mean",
                 "npxG_away": "mean",
+                "npxGA_away": "mean",
                 "xGA_away": "mean",
                 "deep_allowed_away": "mean",
+                "pts_away": "mean",
+                "xpts_away": "mean"
             }
         )
 
@@ -191,16 +201,22 @@ class PremierLeaguePredictor:
         away = self.team_stats_away.loc[away_team]
 
         features = {
-            "home_xg": home["xG_home"],
-            "home_deep": home["deep_home"],
-            "home_np_diff": home["npxG_home"],
-            "home_xga": home["xGA_home"],
-            "home_deep_allowed": home["deep_allowed_home"],
-            "away_xg": away["xG_away"],
-            "away_deep": away["deep_away"],
-            "away_np_diff": away["npxG_away"],
-            "away_xga": away["xGA_away"],
-            "away_deep_allowed": away["deep_allowed_away"],
+            "xG_home": home["xG_home"],
+            "xGA_home": home["xGA_home"],
+            "xG_away": away["xG_away"],
+            "xGA_away": away["xGA_away"],
+            "npxG_home": home["npxG_home"],
+            "npxGA_home": home["npxGA_home"],
+            "npxG_away": away["npxG_away"],
+            "npxGA_away": away["npxGA_away"],
+            "deep_home": home["deep_home"],
+            "deep_allowed_home": home["deep_allowed_home"],
+            "deep_away": away["deep_away"],
+            "deep_allowed_away": away["deep_allowed_away"],
+            "pts_home": home.get("pts_home", 0),
+            "pts_away": away.get("pts_away", 0),
+            "xpts_home": home.get("xpts_home", 0),
+            "xpts_away": away.get("xpts_away", 0),
         }
 
         return pd.DataFrame([features])
@@ -209,63 +225,28 @@ class PremierLeaguePredictor:
         """
         Preddicción principal - Falta adaptación del colab
         """
-        try:
-            # Preparación de los features
-            features_df = self.prepare_features(home_team, away_team)
-            # Heurística simple - revisión del colab para modificación
-            home_score = (
-                features_df["home_xg"].iloc[0]
-                + features_df["home_deep"].iloc[0]
-                + features_df["home_np_diff"].iloc[0]
-                + (1 - features_df["home_xga"].iloc[0])
-                + (1 - features_df["home_deep_allowed"].iloc[0])
-            )
+        # Preparación de los features
+        features_df = self.prepare_features(home_team, away_team)
+        probs = self.model.predict_proba(features_df)[0]
 
-            away_score = (
-                features_df["away_xg"].iloc[0]
-                + features_df["away_deep"].iloc[0]
-                + features_df["away_np_diff"].iloc[0]
-                + (1 - features_df["away_xga"].iloc[0])
-                + (1 - features_df["away_deep_allowed"].iloc[0])
-            )
+        # Índices correctos según LabelEncoder
+        idx_w = self.le.transform(["w"])[0]
+        idx_d = self.le.transform(["d"])[0]
+        idx_l = self.le.transform(["l"])[0]
 
-            draw_raw = np.exp(-np.abs(home_score - away_score))
+        label = self.le.inverse_transform([np.argmax(probs)])[0]
 
-            total = home_score + away_score + draw_raw
+        mapping = {"w": "home", "d": "draw", "l": "away"}
 
-            prob_home = home_score / total
-            prob_draw = draw_raw / total
-            prob_away = away_score / total
-
-            probs = [prob_home, prob_draw, prob_away]
-            max_idx = np.argmax(probs)
-            outcomes = ["home", "draw", "away"]
-
-            result = {
-                "prediction": outcomes[max_idx],
-                "confidence": round(probs[max_idx] * 100, 1),
-                "probabilities": {
-                    "home": round(prob_home * 100, 1),
-                    "draw": round(prob_draw * 100, 1),
-                    "away": round(prob_away * 100, 1),
-                },
-                "metrics": {
-                    "home_score": round(home_score, 2),
-                    "away_score": round(away_score, 2),
-                    "advantage": "home" if home_score > away_score else "away",
-                },
-            }
-            return result
-
-        except (KeyError, IndexError, ValueError, TypeError) as e:
-
-            print(f"Error in prediction: {e}")
-            return {
-                "prediction": "draw",
-                "confidence": 50.0,
-                "probabilities": {"home": 40, "draw": 35, "away": 25},
-                "metrics": {"error": str(e)},
-            }
+        return {
+            "prediction": mapping[label],
+            "confidence": round(np.max(probs) * 100, 1),
+            "probabilities": {
+                "home": round(probs[idx_w] * 100, 1),
+                "draw": round(probs[idx_d] * 100, 1),
+                "away": round(probs[idx_l] * 100, 1),
+            },
+        }
 
     def build_match_summary(self, home_team, away_team, prediction_result, n_last=5):
         """
@@ -334,6 +315,54 @@ class PremierLeaguePredictor:
         """
 
         return summary
+
+    def train_model(self):
+        # Columnas a usar (escaladas después)
+        features = [
+            "xG_home",
+            "xGA_home",
+            "xG_away",
+            "xGA_away",
+            "npxG_home",
+            "npxGA_home",
+            "npxG_away",
+            "npxGA_away",
+            "deep_home",
+            "deep_allowed_home",
+            "deep_away",
+            "deep_allowed_away",
+            "pts_home",
+            "pts_away",
+            "xpts_home",
+            "xpts_away",
+        ]
+
+        df = self.historical_df.copy()
+        X = df[features].fillna(df.mean(numeric_only=True))
+
+        y = df['result_home']  # 'w', 'd', 'l'
+
+        self.le = LabelEncoder()
+        y_encoded = self.le.fit_transform(y)
+
+        self.model = Pipeline(
+            [
+                ("scaler", StandardScaler()),
+                (
+                    "clf",
+                    LogisticRegression(
+                        multi_class="multinomial",
+                        solver="lbfgs",
+                        max_iter=1000,
+                        class_weight="balanced",
+                        random_state=42,
+                    ),
+                ),
+            ]
+        )
+
+        # Entrenar
+        self.model.fit(X, y_encoded)
 
     def get_gemini_analysis(self, home_team, away_team, prediction_result):
         try:
