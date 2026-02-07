@@ -11,7 +11,6 @@ import pandas as pd
 import numpy as np
 import requests
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
@@ -30,10 +29,11 @@ class PremierLeaguePredictor:
         self.team_stats_away = None
         self.le = None
         self.model = None
+        self.features = []
         self.team_mapping = self._load_team_mapping()
 
         self.load_historical_data()
-        self.build_team_stats()
+        self.build_team_stats(n_last=10)
         self.train_model()
 
     def _load_team_mapping(self):
@@ -92,14 +92,25 @@ class PremierLeaguePredictor:
         """
         self.historical_df = pd.read_csv(path)
 
-    def build_team_stats(self):
+    def build_team_stats(self, n_last=10):
         """
         Procesa los datos históricos para calcular y consolidar las
         métricas de rendimiento por equipo.
         """
         df = self.historical_df.copy()
 
-        self.team_stats_home = df.groupby("team_home").agg(
+        # Asegurar que la fecha sea datetime
+        df["date_home"] = pd.to_datetime(df["date_home"], errors="coerce")
+
+        # Ordenar por fecha (más antiguos → más recientes)
+        df = df.sort_values("date_home")
+
+        # ===============================
+        # ÚLTIMOS N PARTIDOS COMO LOCAL
+        # ===============================
+        df_home_recent = df.groupby("team_home").tail(n_last)
+
+        self.team_stats_home = df_home_recent.groupby("team_home").agg(
             {
                 "xG_home": "mean",
                 "deep_home": "mean",
@@ -108,11 +119,16 @@ class PremierLeaguePredictor:
                 "xGA_home": "mean",
                 "deep_allowed_home": "mean",
                 "pts_home": "mean",
-                "xpts_home": "mean"
+                "xpts_home": "mean",
             }
         )
 
-        self.team_stats_away = df.groupby("team_away").agg(
+        # ===============================
+        # ÚLTIMOS N PARTIDOS COMO VISITANTE
+        # ===============================
+        df_away_recent = df.groupby("team_away").tail(n_last)
+
+        self.team_stats_away = df_away_recent.groupby("team_away").agg(
             {
                 "xG_away": "mean",
                 "deep_away": "mean",
@@ -121,7 +137,6 @@ class PremierLeaguePredictor:
                 "xGA_away": "mean",
                 "deep_allowed_away": "mean",
                 "pts_away": "mean",
-                "xpts_away": "mean"
             }
         )
 
@@ -216,10 +231,11 @@ class PremierLeaguePredictor:
             "pts_home": home.get("pts_home", 0),
             "pts_away": away.get("pts_away", 0),
             "xpts_home": home.get("xpts_home", 0),
-            "xpts_away": away.get("xpts_away", 0),
         }
 
-        return pd.DataFrame([features])
+        df_feat = pd.DataFrame([features])
+        df_feat = df_feat.reindex(columns=self.features, fill_value=0)
+        return df_feat
 
     def predict_match(self, home_team, away_team):
         """
@@ -318,6 +334,11 @@ class PremierLeaguePredictor:
 
     def train_model(self):
         # Columnas a usar (escaladas después)
+        """
+        Entrena el modelo de Regresión Logística en memoria usando un Pipeline
+        (Scaler + Clasificador).
+        """
+
         features = [
             "xG_home",
             "xGA_home",
@@ -334,13 +355,22 @@ class PremierLeaguePredictor:
             "pts_home",
             "pts_away",
             "xpts_home",
-            "xpts_away",
         ]
 
+        self.features = features
+
         df = self.historical_df.copy()
-        X = df[features].fillna(df.mean(numeric_only=True))
+
+        missing = [col for col in self.features if col not in df.columns]
+        if missing:
+            raise ValueError(f"Faltan columnas en el CSV: {missing}")
+
+        X = df[self.features].fillna(df.mean(numeric_only=True))
 
         y = df['result_home']  # 'w', 'd', 'l'
+
+        if len(np.unique(y)) < 3:
+            raise ValueError("Dataset incompleto: faltan clases w/d/l")
 
         self.le = LabelEncoder()
         y_encoded = self.le.fit_transform(y)
