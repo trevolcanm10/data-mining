@@ -26,7 +26,7 @@ setup_page()
 show_header()
 # Llamamos al Sidebar
 show_sidebar()
-st.title("🏆 Predictor Premier League")
+st.markdown('<h1><i class="fa-solid fa-trophy"></i> Predictor Premier League</h1>', unsafe_allow_html=True)
 st.image(
     "https://cdn.resfu.com/media/img_news/creatividad-del-analisis-del-inicio-de-"
     "la-premier-league-2025-26--besoccer.jpg?size=1000x&lossy=1",
@@ -34,7 +34,8 @@ st.image(
     use_container_width=True,
 )
 # Sección: Equipos destacados
-st.subheader("🔥 Equipos Destacados")
+st.markdown('<h3><i class="fa-solid fa-fire"></i> Equipos Destacados</h3>', unsafe_allow_html=True)
+
 team_images = {
     "Manchester City": (
         "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/"
@@ -72,5 +73,5 @@ if st.button("Fixtures", use_container_width=True):
 
 if st.button(" Estadísticas", use_container_width=True):
     st.switch_page("pages/_Stats.py")
-st.info("💡 **Tip:** Usa los botones o el menú de Streamlit arriba para navegar")
+st.markdown('<div class="stInfo"><i class="fa-solid fa-lightbulb"></i> <b>Tip:</b> Usa los botones o el menú de Streamlit</div>', unsafe_allow_html=True)
 show_footer()

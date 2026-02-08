@@ -33,7 +33,7 @@ class PremierLeaguePredictor:
         self.team_mapping = self._load_team_mapping()
 
         self.load_historical_data()
-        self.build_team_stats(n_last=10)
+        self.build_team_stats(n_last=100)
         self.train_model()
 
     def _load_team_mapping(self):
@@ -233,6 +233,10 @@ class PremierLeaguePredictor:
             "xpts_home": home.get("xpts_home", 0),
         }
 
+        features["xG_diff"] = features["xG_home"] - features["xG_away"]
+        features["xGA_diff"] = features["xGA_home"] - features["xGA_away"]
+        features["pts_diff"] = features["pts_home"] - features["pts_away"]
+
         df_feat = pd.DataFrame([features])
         df_feat = df_feat.reindex(columns=self.features, fill_value=0)
         return df_feat
@@ -357,9 +361,15 @@ class PremierLeaguePredictor:
             "xpts_home",
         ]
 
-        self.features = features
-
         df = self.historical_df.copy()
+
+        df["xG_diff"] = df["xG_home"] - df["xG_away"]
+        df["xGA_diff"] = df["xGA_home"] - df["xGA_away"]
+        df["pts_diff"] = df["pts_home"] - df["pts_away"]
+
+        features += ["xG_diff", "xGA_diff", "pts_diff"]
+
+        self.features = features
 
         missing = [col for col in self.features if col not in df.columns]
         if missing:

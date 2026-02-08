@@ -46,20 +46,28 @@ def show_sidebar():
                 ]
 
         # Mostrar info
-        st.subheader(f" Equipos disponibles: {len(st.session_state.all_teams)}")
-        st.markdown("---")
-        st.info(
-            """
-        **Cómo funciona:**
-        1. Selecciona 2 equipos
-        2. Click en PREDICCIÓN
-        3. IA analiza datos históricos
-        4. Recibe predicción + análisis
-        
-        **Datos usados:**
-        - xG (Goles esperados)
-        - Deep completions
-        - NP-xG (sin penales)
-        - Últimos 20 partidos
-        """
+        st.markdown(
+            f"""
+        <div class="sidebar-title">
+        ⚽ Equipos disponibles: {len(st.session_state.all_teams)}
+        </div>
+
+        <div class="sidebar-box">
+            <h3>📌 Cómo funciona</h3>
+            <ol>
+                <li>Selecciona 2 equipos</li>
+                <li>Click en <b>PREDICCIÓN</b></li>
+                <li>IA analiza datos históricos</li>
+                <li>Recibe predicción + análisis</li>
+            </ol>
+            <h3>📊 Datos usados</h3>
+            <ul>
+                <li>xG (Goles esperados)</li>
+                <li>Deep completions</li>
+                <li>NP-xG (sin penales)</li>
+                <li>Últimos 20 partidos</li>
+            </ul>
+        </div>
+        """,
+            unsafe_allow_html=True,
         )

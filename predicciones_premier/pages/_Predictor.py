@@ -18,7 +18,7 @@ predictor = st.session_state.predictor
 st.title("Predicción de Partidos")
 
 # Obtener equipos del sidebar (ya cargados)
-if "all_teams" in st.session_state:
+if "all_teams" in st.session_state and len(st.session_state.all_teams) > 1:
     premier_teams = st.session_state.all_teams
 else:
     premier_teams = [

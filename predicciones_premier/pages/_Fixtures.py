@@ -20,6 +20,11 @@ predictor = st.session_state.predictor
 st.markdown("### Filtros")
 col1, col2, col3 = st.columns(3)
 
+# Asegurar que all_teams exista antes de usarlo
+if "all_teams" not in st.session_state:
+    st.session_state.all_teams = []
+
+
 with col1:
     days_ahead = st.slider("Días a mostrar", 1, 60, 14, help="Muestra partidos hasta X días en el futuro")
 
