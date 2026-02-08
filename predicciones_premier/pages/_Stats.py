@@ -11,8 +11,9 @@ import plotly.express as px
 # from datetime import datetime, timedelta
 
 # Importar tu predictor
+from config import setup_page
 from utils.predictor import PremierLeaguePredictor
-
+setup_page()
 # Título de página
 st.title("📊 Estadísticas y Análisis")
 

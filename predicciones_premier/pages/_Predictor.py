@@ -3,11 +3,14 @@ import streamlit as st
 import pandas as pd
 import time
 
+
 # Importar tu predictor
+from config import setup_page
 from utils.predictor import PremierLeaguePredictor
 from components.prediction_card import show_prediction_card
 from components.ads import show_bet365_ad
 
+setup_page()
 # Inicializar predictor (caché con session_state)
 if "predictor" not in st.session_state:
     st.session_state.predictor = PremierLeaguePredictor()
@@ -47,8 +50,13 @@ home_default = st.session_state.get("predict_home", premier_teams[0])
 away_default = st.session_state.get("predict_away", premier_teams[1])
 
 with col1:
+    st.markdown('<label style="color:#00ff99;font-weight:bold;">Equipo Local</label>', unsafe_allow_html=True)
     home_team = st.selectbox(
-        "Equipo Local", premier_teams, index=premier_teams.index(home_default), key="predictor_home"
+        "Equipo Local",
+        premier_teams,
+        index=premier_teams.index(home_default),
+        key="predictor_home",
+        label_visibility="collapsed"
     )
 
 with col2:
@@ -56,11 +64,13 @@ with col2:
     st.markdown("<h2 style='text-align: center;'>VS</h2>", unsafe_allow_html=True)
 
 with col3:
+    st.markdown('<label style="color:#00ff99;font-weight:bold;">Equipo Visitante</label>', unsafe_allow_html=True)
     away_team = st.selectbox(
         "Equipo Visitante",
         premier_teams,
         index=premier_teams.index(away_default),
         key="predictor_away",
+        label_visibility="collapsed"
     )
 
 
@@ -85,11 +95,20 @@ def run_prediction(home_team, away_team):
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Local gana", f"{prediction['probabilities']['home']}%")
+        st.markdown(
+            f'<h3 style="color:#00ff99;">Local gana: {prediction["probabilities"]["home"]}%</h3>',
+            unsafe_allow_html=True,
+        )
     with col2:
-        st.metric("Empate", f"{prediction['probabilities']['draw']}%")
+        st.markdown(
+            f'<h3 style="color:#ffdd00;">Empate: {prediction["probabilities"]["draw"]}%</h3>',
+            unsafe_allow_html=True,
+        )
     with col3:
-        st.metric("Visitante gana", f"{prediction['probabilities']['away']}%")
+        st.markdown(
+            f'<h3 style="color:#ff5555;">Visitante gana: {prediction["probabilities"]["away"]}%</h3>',
+            unsafe_allow_html=True,
+        )
 
     chart_data = pd.DataFrame(
         {
@@ -102,7 +121,7 @@ def run_prediction(home_team, away_team):
         }
     )
 
-    #Orden de los graficos
+    # Orden de los graficos
     chart_data["Resultado"] = pd.Categorical(
         chart_data["Resultado"],
         categories=["Local", "Empate", "Visitante"],
@@ -112,7 +131,9 @@ def run_prediction(home_team, away_team):
     st.bar_chart(chart_data.set_index("Resultado"))
 
     with st.expander("ANÁLISIS DETALLADO DE IA", expanded=True):
+        st.markdown('<div style="background:rgba(0,255,153,0.1);padding:10px;border-radius:12px;">', unsafe_allow_html=True)
         st.write(gemini_analysis)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     show_bet365_ad()
 
@@ -136,6 +157,9 @@ if "predict_home" in st.session_state and "predict_away" in st.session_state:
 
 if st.button("PRE DECIR PARTIDO", type="primary", use_container_width=True):
     if home_team == away_team:
-        st.error("Selecciona equipos diferentes")
+        st.markdown(
+            '<div class="st-error" style="color:#ff5555;font-weight:bold;">Selecciona equipos diferentes</div>',
+            unsafe_allow_html=True,
+        )
     else:
         run_prediction(home_team, away_team)

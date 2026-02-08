@@ -1,12 +1,12 @@
 # pages/_Fixtures.py
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 import time
-
 # Importar tu predictor
+from config import setup_page
+from datetime import datetime
 from utils.predictor import PremierLeaguePredictor
-
+setup_page()
 # Título de página
 st.title("Próximos Partidos")
 
