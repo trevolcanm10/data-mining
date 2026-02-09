@@ -387,3 +387,11 @@ def setup_page():
     """,
         unsafe_allow_html=True,
     )
+
+# Definir imágenes globales
+IMAGES = {
+    "premier_banner": "https://m.media-amazon.com/images/M/MV5BMjA0ZGI1MDQtOGNmMi00MTkxLWFkNGUtOTJiYTVlOGVlNjhmXkEyXkFqcGc@._V1_.jpg",
+    "vs_icon": "https://cdn-icons-png.flaticon.com/512/32/32328.png",
+    "home_icon": "https://cdn-icons-png.flaticon.com/512/53/53254.png",
+    "away_icon": "https://cdn-icons-png.flaticon.com/512/53/53254.png",
+}

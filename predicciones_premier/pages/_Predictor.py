@@ -2,15 +2,18 @@
 import streamlit as st
 import pandas as pd
 import time
-
-
 # Importar tu predictor
-from config import setup_page
+from config import setup_page, IMAGES
 from utils.predictor import PremierLeaguePredictor
 from components.prediction_card import show_prediction_card
 from components.ads import show_bet365_ad
 
 setup_page()
+st.image(
+    IMAGES["premier_banner"],
+    caption="Análisis profesional de la Premier League",
+    use_container_width=True,
+)
 # Inicializar predictor (caché con session_state)
 if "predictor" not in st.session_state:
     st.session_state.predictor = PremierLeaguePredictor()
@@ -50,7 +53,10 @@ home_default = st.session_state.get("predict_home", premier_teams[0])
 away_default = st.session_state.get("predict_away", premier_teams[1])
 
 with col1:
-    st.markdown('<label style="color:#00ff99;font-weight:bold;">Equipo Local</label>', unsafe_allow_html=True)
+    st.markdown(
+        f'<label style="color:#ff5555;font-weight:bold;"><img src="{IMAGES["home_icon"]}" width="20"> Equipo Local</label>',
+        unsafe_allow_html=True,
+    )
     home_team = st.selectbox(
         "Equipo Local",
         premier_teams,
@@ -60,11 +66,14 @@ with col1:
     )
 
 with col2:
-    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown(f'<br><br><img src="{IMAGES["vs_icon"]}" width="40" style="display:block;margin:auto;">', unsafe_allow_html=True)
     st.markdown("<h2 style='text-align: center;'>VS</h2>", unsafe_allow_html=True)
 
 with col3:
-    st.markdown('<label style="color:#00ff99;font-weight:bold;">Equipo Visitante</label>', unsafe_allow_html=True)
+    st.markdown(
+        f'<label style="color:#ff5555;font-weight:bold;"><img src="{IMAGES["away_icon"]}" width="20"> Equipo Visitante</label>',
+        unsafe_allow_html=True,
+    ) 
     away_team = st.selectbox(
         "Equipo Visitante",
         premier_teams,
@@ -154,8 +163,7 @@ if "predict_home" in st.session_state and "predict_away" in st.session_state:
     del st.session_state["predict_away"]
     st.stop()
 
-
-if st.button("PRE DECIR PARTIDO", type="primary", use_container_width=True):
+if st.button("PREDECIRPARTIDO", type="primary", use_container_width=True):
     if home_team == away_team:
         st.markdown(
             '<div class="st-error" style="color:#ff5555;font-weight:bold;">Selecciona equipos diferentes</div>',
