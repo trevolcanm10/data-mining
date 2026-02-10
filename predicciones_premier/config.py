@@ -141,6 +141,14 @@ def setup_page():
         .team-row img {
             width: 50px;
             height: 50px;
+            object-fit: contain;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .team-row img:hover {
+            transform: scale(1.1);
+            filter: none;
         }
         .team-row span {
             font-weight: bold;
@@ -314,9 +322,9 @@ def setup_page():
 
         /* Imagen del logo del header */
         .header-container img {
-            max-width: 180px;
+            max-width: 90px;
             height: auto;
-            border-radius: 12px;
+            border-radius: 8px;
             transition: all 0.4s ease;
             filter: brightness(1) drop-shadow(0 0 0px #00ff99);
         }
@@ -394,4 +402,27 @@ IMAGES = {
     "vs_icon": "https://cdn-icons-png.flaticon.com/512/32/32328.png",
     "home_icon": "https://cdn-icons-png.flaticon.com/512/53/53254.png",
     "away_icon": "https://cdn-icons-png.flaticon.com/512/53/53254.png",
+}
+
+TEAM_LOGOS = {
+    "Manchester City": "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg",
+    "Chelsea": "https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg",
+    "Arsenal": "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg",
+    "Tottenham": "https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg",
+    "Liverpool": "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg",
+    "Manchester United": "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg",
+    "Newcastle United": "https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg",
+    "Everton": "https://upload.wikimedia.org/wikipedia/en/7/7c/Everton_FC_logo.svg",
+    "Brighton": "https://upload.wikimedia.org/wikipedia/en/f/fd/Brighton_%26_Hove_Albion_logo.svg",
+    "West Ham": "https://upload.wikimedia.org/wikipedia/en/c/c2/West_Ham_United_FC_logo.svg",
+    "Aston Villa": "https://upload.wikimedia.org/wikipedia/en/f/f9/Aston_Villa_FC_crest_%282016%29.svg",
+    "Leicester City": "https://upload.wikimedia.org/wikipedia/en/6/63/Leicester_City_Seal.svg",
+    "Leeds United": "https://upload.wikimedia.org/wikipedia/en/0/0c/Leeds_United_F.C._logo.svg",
+    "Southampton": "https://upload.wikimedia.org/wikipedia/en/c/c9/FC_Southampton.svg",
+    "Wolverhampton Wanderers": "https://upload.wikimedia.org/wikipedia/en/f/fc/Wolverhampton_Wanderers.svg",
+    "Nottingham Forest": "https://upload.wikimedia.org/wikipedia/en/6/6b/Nottingham_Forest_logo.svg",
+    "Bournemouth": "https://upload.wikimedia.org/wikipedia/en/5/5c/AFC_Bournemouth_logo.svg",
+    "Fulham": "https://upload.wikimedia.org/wikipedia/en/e/e6/Fulham_FC_%28shield%29.svg",
+    "Brentford": "https://upload.wikimedia.org/wikipedia/en/0/0b/Brentford_FC_crest.svg",
+    "Crystal Palace": "https://upload.wikimedia.org/wikipedia/en/0/0c/Crystal_Palace_FC_logo.svg",
 }

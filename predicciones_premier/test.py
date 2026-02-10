@@ -1,59 +1,83 @@
 from utils.predictor import PremierLeaguePredictor
 import pandas as pd
 
-# ===============================
-# TEST PRINCIPAL DEL DATASET
-# ===============================
+print("\n🚀 TEST GENERAL DEL MODELO PREMIER LEAGUE\n")
 
-print("\n🚀 Iniciando prueba del dataset...\n")
-
-# Crear instancia del predictor (carga dataset automáticamente)
 predictor = PremierLeaguePredictor()
 
-df = predictor.historical_df
+df = predictor.historical_df.sample(100)
+
+draws = 0
+
+for _, row in df.iterrows():
+    res = predictor.predict_match(row["team_home"], row["team_away"])
+    if res["prediction"] == "draw":
+        draws += 1
+
+print("Draw rate:", draws, "%")
+
+matches = [
+    ("Manchester City", "Chelsea"),
+    ("Arsenal", "Tottenham"),
+    ("Liverpool", "Manchester United"),
+    ("Newcastle United", "Everton"),
+    ("Brighton", "West Ham"),
+]
+
+results = []
+
+print("===============================")
+print("⚽ TEST DE PREDICCIONES")
+print("===============================\n")
+
+for home, away in matches:
+
+    res = predictor.predict_match(home, away)
+
+    probs = res["probabilities"]
+
+    print(f"🏟️ {home} vs {away}")
+    print(f"➡️ Predicción: {res['prediction']} ({res['confidence']}%)")
+
+    print(
+        f"   Probabilidades: "
+        f"Home={probs['home']}% | "
+        f"Draw={probs['draw']}% | "
+        f"Away={probs['away']}%"
+    )
+
+    print("-" * 50)
+
+    results.append(
+        {
+            "home": home,
+            "away": away,
+            "pred": res["prediction"],
+            "home_win": probs["home"],
+            "draw": probs["draw"],
+            "away_win": probs["away"],
+        }
+    )
+
 
 # ===============================
-# 1. TOTAL PARTIDOS
+# 📊 RESUMEN FINAL
 # ===============================
-print("📌 TOTAL partidos en dataset:", len(df))
 
-# ===============================
-# 2. RANGO DE FECHAS
-# ===============================
-df["date_home"] = pd.to_datetime(df["date_home"], errors="coerce")
+df = pd.DataFrame(results)
 
-print("\n📅 Rango de fechas:")
-print("Desde:", df["date_home"].min())
-print("Hasta:", df["date_home"].max())
+print("\n===============================")
+print("📌 RESUMEN TABLA FINAL")
+print("===============================\n")
 
-# ===============================
-# 3. PARTIDOS POR EQUIPO
-# ===============================
-print("\n🏠 Partidos como LOCAL (Top 10):")
-print(df["team_home"].value_counts().head(10))
+print(df)
 
-print("\n✈️ Partidos como VISITANTE (Top 10):")
-print(df["team_away"].value_counts().head(10))
+print("\n===============================")
+print("📊 PROMEDIOS GENERALES")
+print("===============================\n")
 
-# ===============================
-# 4. MÍNIMO PARTIDOS POR EQUIPO
-# ===============================
-min_home = df["team_home"].value_counts().min()
-min_away = df["team_away"].value_counts().min()
+print("Home Win Avg:", round(df["home_win"].mean(), 2), "%")
+print("Draw Avg:", round(df["draw"].mean(), 2), "%")
+print("Away Win Avg:", round(df["away_win"].mean(), 2), "%")
 
-print("\n⚠️ Mínimo partidos disponibles:")
-print("Local:", min_home)
-print("Visitante:", min_away)
-
-# ===============================
-# 5. ÚLTIMOS PARTIDOS REGISTRADOS
-# ===============================
-print("\n🔥 Últimos 10 partidos del dataset:")
-
-print(
-    df.sort_values("date_home", ascending=False).head(10)[
-        ["date_home", "team_home", "team_away", "scored_home", "scored_away"]
-    ]
-)
-
-print("\n✅ Prueba finalizada correctamente.\n")
+print("\n✅ TEST TERMINADO\n")

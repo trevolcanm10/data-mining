@@ -1,10 +1,8 @@
 # pages/_Fixtures.py
 import streamlit as st
 import pandas as pd
-import time
 # Importar tu predictor
-from config import setup_page
-from datetime import datetime
+from config import setup_page, TEAM_LOGOS
 from utils.predictor import PremierLeaguePredictor
 setup_page()
 # Título de página
@@ -93,6 +91,11 @@ if not fixtures_df.empty:
                 col1, col2, col3, col4 = st.columns([3, 2, 3, 2])
 
                 with col1:
+                    home_logo = TEAM_LOGOS.get(
+                        row["home_team"],
+                        "https://upload.wikimedia.org/wikipedia/commons/4/49/Football.png",
+                    )
+                    st.image(home_logo, width=40)
                     st.markdown(f"**{row['home_team']}**")
 
                 with col2:
@@ -101,6 +104,11 @@ if not fixtures_df.empty:
                     st.caption(f"{row['hora']}")
 
                 with col3:
+                    away_logo = TEAM_LOGOS.get(
+                        row["away_team"],
+                        "https://upload.wikimedia.org/wikipedia/commons/4/49/Football.png",
+                    )
+                    st.image(away_logo, width=40)
                     st.markdown(f"**{row['away_team']}**")
 
                 with col4:
@@ -133,11 +141,16 @@ if not fixtures_df.empty:
             col1, col2 = st.columns(2)
 
             with col1:
+                home_logo = TEAM_LOGOS.get(
+                    row["home_team"],
+                    "https://upload.wikimedia.org/wikipedia/commons/4/49/Football.png",
+                )
                 st.markdown(f"**🏠 {row['home_team']}**")
                 # Aquí podrías añadir estadísticas del equipo local
                 st.caption(" Estadísticas detalladas próximamente...")
 
             with col2:
+                away_logo = TEAM_LOGOS.get(row['away_team'], "https://upload.wikimedia.org/wikipedia/commons/4/49/Football.png")
                 st.markdown(f"**✈️ {row['away_team']}**")
                 # Estadísticas visitante
                 st.caption(" Estadísticas detalladas próximamente...")

@@ -9,10 +9,12 @@ import warnings
 import os
 import pandas as pd
 import numpy as np
+import ast
 import requests
-from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.calibration import CalibratedClassifierCV
+# from sklearn.linear_model import LogisticRegression
 
 warnings.filterwarnings("ignore")
 
@@ -33,7 +35,7 @@ class PremierLeaguePredictor:
         self.team_mapping = self._load_team_mapping()
 
         self.load_historical_data()
-        self.build_team_stats(n_last=100)
+        self.build_team_stats(n_last=10)
         self.train_model()
 
     def _load_team_mapping(self):
@@ -200,6 +202,17 @@ class PremierLeaguePredictor:
                 }
             )
 
+    def parse_ppda(self, x):
+        """
+        Convierte valores tipo "{'att': 247, 'def': 20}"
+        en un número real PPDA = att/def
+        """
+        try:
+            d = ast.literal_eval(str(x))  # convierte texto → dict real
+            return d["att"] / d["def"]
+        except:
+            return np.nan
+
     def prepare_features(self, home_team, away_team):
         """
         Extrae y organiza las métricas estadísticas de ambos equipos para
@@ -212,59 +225,146 @@ class PremierLeaguePredictor:
         if away_team not in self.team_stats_away.index:
             raise ValueError(f"Equipo visitante sin datos:{away_team}")
 
-        home = self.team_stats_home.loc[home_team]
-        away = self.team_stats_away.loc[away_team]
+        df = self.historical_df
 
+        # Últimos partidos del local en casa
+        home_games = df[df["team_home"] == home_team].tail(5)
+        # Últimos partidos del visitante fuera
+        away_games = df[df["team_away"] == away_team].tail(5)
+
+        # ===============================
+        # PROMEDIOS REALES
+        # ===============================
+        scored_home = home_games["scored_home"].mean()
+        missed_home = home_games["missed_home"].mean()
+
+        scored_away = away_games["scored_away"].mean()
+        missed_away = away_games["missed_away"].mean()
+
+        wins_home = home_games["wins_home"].mean()
+        wins_away = away_games["wins_away"].mean()
+
+        loses_home = home_games["loses_home"].mean()
+        loses_away = away_games["loses_away"].mean()
+
+        draws_home = home_games["draws_home"].mean()
+        draws_away = away_games["draws_away"].mean()
+
+        ppda_allowed_home = home_games["ppda_allowed_home"].apply(self.parse_ppda).mean()
+        ppda_allowed_away = away_games["ppda_allowed_away"].apply(self.parse_ppda).mean()
+        ppda_home = home_games["ppda_home"].apply(self.parse_ppda).mean()
+        ppda_away = away_games["ppda_away"].apply(self.parse_ppda).mean()
+
+        # ===============================
+        # BASE xG
+        # ===============================
+        xG_home = home_games["xG_home"].mean()
+        xGA_home = home_games["xGA_home"].mean()
+
+        xG_away = away_games["xG_away"].mean()
+        xGA_away = away_games["xGA_away"].mean()
+
+        # ===============================
+        # FEATURES DIFERENCIALES
+        # ===============================
+        goal_diff = scored_home - scored_away
+        goals_total = scored_home + scored_away
+        form_home = home_games["pts_home"].mean()
+        form_away = away_games["pts_away"].mean()
+        form_diff = form_home - form_away
+        draw_rate = (draws_home + draws_away) / 2
+
+        ppda_diff = ppda_home - ppda_away
+
+        league_avg_ppda = df["ppda_home"].apply(self.parse_ppda).mean()
+        league_avg_scored = df["scored_home"].mean()
+        league_avg_missed = df["missed_home"].mean()
+
+        if np.isnan(ppda_home):
+            ppda_home = league_avg_ppda
+        if np.isnan(ppda_away):
+            ppda_away = league_avg_ppda
+        if np.isnan(scored_home):
+            scored_home = league_avg_scored
+        if np.isnan(missed_home):
+            missed_home = league_avg_missed
+
+        if np.isnan(scored_away):
+            scored_away = league_avg_scored
+        if np.isnan(missed_away):
+            missed_away = league_avg_missed
+
+        attack_strength_home = scored_home - missed_home
+        attack_strength_away = scored_away - missed_away
+
+        # ===============================
+        # FEATURE VECTOR FINAL
+        # ===============================
         features = {
-            "xG_home": home["xG_home"],
-            "xGA_home": home["xGA_home"],
-            "xG_away": away["xG_away"],
-            "xGA_away": away["xGA_away"],
-            "npxG_home": home["npxG_home"],
-            "npxGA_home": home["npxGA_home"],
-            "npxG_away": away["npxG_away"],
-            "npxGA_away": away["npxGA_away"],
-            "deep_home": home["deep_home"],
-            "deep_allowed_home": home["deep_allowed_home"],
-            "deep_away": away["deep_away"],
-            "deep_allowed_away": away["deep_allowed_away"],
-            "pts_home": home.get("pts_home", 0),
-            "pts_away": away.get("pts_away", 0),
-            "xpts_home": home.get("xpts_home", 0),
+            "xG_home": xG_home,
+            "xGA_home": xGA_home,
+            "xG_away": xG_away,
+            "xGA_away": xGA_away,
+            "scored_home": scored_home,
+            "scored_away": scored_away,
+            "missed_home": missed_home,
+            "missed_away": missed_away,
+            "wins_home": wins_home,
+            "wins_away": wins_away,
+            "draws_home": draws_home,
+            "draws_away": draws_away,
+            "loses_home": loses_home,
+            "loses_away": loses_away,
+            "pts_home": home_games["pts_home"].mean(),
+            "pts_away": away_games["pts_away"].mean(),
+            "ppda_home": ppda_home,
+            "ppda_away": ppda_away,
+            "ppda_allowed_home": ppda_allowed_home,
+            "ppda_allowed_away": ppda_allowed_away,
+            "goal_diff": goal_diff,
+            "goals_total": goals_total,
+            "form_diff": form_diff,
+            "draw_rate": draw_rate,
+            "ppda_diff": ppda_diff,
+            "attack_strength_home": attack_strength_home,
+            "attack_strength_away": attack_strength_away,
         }
 
-        features["xG_diff"] = features["xG_home"] - features["xG_away"]
-        features["xGA_diff"] = features["xGA_home"] - features["xGA_away"]
-        features["pts_diff"] = features["pts_home"] - features["pts_away"]
-
         df_feat = pd.DataFrame([features])
+        # Reordenar igual que entrenamiento
         df_feat = df_feat.reindex(columns=self.features, fill_value=0)
-        return df_feat
+        return df_feat.fillna(0), home_games, away_games
 
     def predict_match(self, home_team, away_team):
         """
         Preddicción principal - Falta adaptación del colab
         """
         # Preparación de los features
-        features_df = self.prepare_features(home_team, away_team)
+        features_df, _, _ = self.prepare_features(home_team, away_team)
         probs = self.model.predict_proba(features_df)[0]
+        # ===============================
+        # AJUSTES BOOKMAKER
+        # ===============================
+        # 1. Suavizar hacia promedio Premier League
+        probs = self._shrink_to_league_avg(probs, alpha=0.22)
+        # 2. Limitar extremos (clamp)
+        probs = self._clamp_probs(probs, min_p=0.10, max_p=0.70)
+        # 3. Reducir empate inflado
+        probs = self._reduce_draw_bias(probs, max_draw=0.38)
 
-        # Índices correctos según LabelEncoder
-        idx_w = self.le.transform(["w"])[0]
-        idx_d = self.le.transform(["d"])[0]
-        idx_l = self.le.transform(["l"])[0]
+        # Convertir array a diccionario con etiquetas reales
+        probs_dict = dict(zip(self.le.classes_, probs))
 
         label = self.le.inverse_transform([np.argmax(probs)])[0]
-
         mapping = {"w": "home", "d": "draw", "l": "away"}
 
         return {
             "prediction": mapping[label],
-            "confidence": round(np.max(probs) * 100, 1),
+            "confidence": round(np.max(probs) * 100, 2),
             "probabilities": {
-                "home": round(probs[idx_w] * 100, 1),
-                "draw": round(probs[idx_d] * 100, 1),
-                "away": round(probs[idx_l] * 100, 1),
+                "home": round(probs_dict["w"] * 100, 2),
+                "draw": round(probs_dict["d"] * 100, 2),
+                "away": round(probs_dict["l"] * 100, 2),
             },
         }
 
@@ -339,70 +439,159 @@ class PremierLeaguePredictor:
     def train_model(self):
         # Columnas a usar (escaladas después)
         """
-        Entrena el modelo de Regresión Logística en memoria usando un Pipeline
-        (Scaler + Clasificador).
+        Entrena el modelo usando Gradient Boosting.
         """
 
+        df = self.historical_df.copy()
+
+        # ===============================
+        # 1. CONVERTIR PPDA A FLOAT
+        # ===============================
+        ppda_cols = ["ppda_home", "ppda_away", "ppda_allowed_home", "ppda_allowed_away"]
+
+        for col in ppda_cols:
+            df[col] = df[col].apply(self.parse_ppda)
+
+        # ===============================
+        # FEATURES PRINCIPALES
+        # ===============================
         features = [
+            # xG base
             "xG_home",
             "xGA_home",
             "xG_away",
             "xGA_away",
-            "npxG_home",
-            "npxGA_home",
-            "npxG_away",
-            "npxGA_away",
-            "deep_home",
-            "deep_allowed_home",
-            "deep_away",
-            "deep_allowed_away",
+            # Goles reales (MUY importante)
+            "scored_home",
+            "scored_away",
+            "missed_home",
+            "missed_away",
+            # Forma histórica
+            "wins_home",
+            "wins_away",
+            "draws_home",
+            "draws_away",
+            "loses_home",
+            "loses_away",
+            # Puntos
             "pts_home",
             "pts_away",
-            "xpts_home",
+            # Presión
+            "ppda_home",
+            "ppda_away",
+            "ppda_allowed_home",
+            "ppda_allowed_away",
         ]
 
-        df = self.historical_df.copy()
+        # ===============================
+        # FEATURES DIFERENCIALES CLAVE
+        # ===============================
 
-        df["xG_diff"] = df["xG_home"] - df["xG_away"]
-        df["xGA_diff"] = df["xGA_home"] - df["xGA_away"]
-        df["pts_diff"] = df["pts_home"] - df["pts_away"]
+        df["goal_diff"] = df["scored_home"] - df["scored_away"]
+        df["goals_total"] = df["scored_home"] + df["scored_away"]
 
-        features += ["xG_diff", "xGA_diff", "pts_diff"]
+        df["form_diff"] = df["pts_home"] - df["pts_away"]
+        df["draw_rate"] = (df["draws_home"] + df["draws_away"]) / 2
+
+        df["ppda_diff"] = df["ppda_home"] - df["ppda_away"]
+
+        df["attack_strength_home"] = df["scored_home"] - df["missed_home"]
+        df["attack_strength_away"] = df["scored_away"] - df["missed_away"]
+
+        features += [
+            "goal_diff",
+            "goals_total",
+            "form_diff",
+            "draw_rate",
+            "ppda_diff",
+            "attack_strength_home",
+            "attack_strength_away",
+        ]
 
         self.features = features
 
+        # ===============================
+        # VALIDACIÓN DE COLUMNAS
+        # ===============================
         missing = [col for col in self.features if col not in df.columns]
         if missing:
             raise ValueError(f"Faltan columnas en el CSV: {missing}")
 
-        X = df[self.features].fillna(df.mean(numeric_only=True))
+        # ===============================
+        # MATRIZ X e Y
+        # ===============================
+        X = df[self.features]
+        X = X.fillna(X.mean(numeric_only=True))
+        X = X.fillna(0)
 
         y = df['result_home']  # 'w', 'd', 'l'
 
         if len(np.unique(y)) < 3:
             raise ValueError("Dataset incompleto: faltan clases w/d/l")
 
+        # ===============================
+        # LABEL ENCODER
+        # ===============================
         self.le = LabelEncoder()
         y_encoded = self.le.fit_transform(y)
-
-        self.model = Pipeline(
-            [
-                ("scaler", StandardScaler()),
-                (
-                    "clf",
-                    LogisticRegression(
-                        multi_class="multinomial",
-                        solver="lbfgs",
-                        max_iter=1000,
-                        class_weight="balanced",
-                        random_state=42,
-                    ),
-                ),
-            ]
+        # ===============================
+        # MODELO: GRADIENT BOOSTING
+        # ===============================
+        base_model = HistGradientBoostingClassifier(
+            max_iter=150,
+            learning_rate=0.1,
+            max_depth=3,
+            min_samples_leaf=20,
+            random_state=42,
         )
 
+        weights = {"w": 1.0, "l": 1.0, "d": 0.75}
+        sample_weights = y.map(weights)
         # Entrenar
-        self.model.fit(X, y_encoded)
+        self.model = CalibratedClassifierCV(base_model, cv=3)
+        self.model.fit(X, y_encoded, sample_weight=sample_weights)
+    # ==========================================================
+    # HEURÍSTICAS PARA PROBABILIDADES REALISTAS (BOOKMAKER STYLE)
+    # ==========================================================
+
+    def _shrink_to_league_avg(self, probs, alpha=0.22):
+        """
+        Evita extremos tipo 99%-1%-0%
+        Mezcla predicción con distribución promedio de Premier League.
+        """
+
+        # Promedio real aproximado Premier:
+        # Orden según LabelEncoder: ['d','l','w']
+        league_avg = np.array([0.25, 0.30, 0.45])
+
+        # Mezcla suavizada
+        probs = (1 - alpha) * probs + alpha * league_avg
+
+        return probs / probs.sum()
+
+    def _clamp_probs(self, probs, min_p=0.08, max_p=0.78):
+        """
+        Limita probabilidades extremas como hacen las casas de apuestas.
+        Evita resultados tipo 99%-1%.
+        """
+        probs = np.clip(probs, min_p, max_p)
+        return probs / probs.sum()
+
+    def _reduce_draw_bias(self, probs, max_draw=0.42):
+        """
+        Reduce empates exagerados.
+        Si el modelo da draw demasiado alto, lo recorta.
+        """
+        probs_dict = dict(zip(self.le.classes_, probs))
+
+        if probs_dict["d"] > max_draw:
+            excess = probs_dict["d"] - max_draw
+            probs_dict["d"] = max_draw
+            probs_dict["w"] += excess / 2
+            probs_dict["l"] += excess / 2
+
+        new_probs = np.array([probs_dict["d"], probs_dict["l"], probs_dict["w"]])
+        return new_probs / new_probs.sum()
 
     def get_gemini_analysis(self, home_team, away_team, prediction_result):
         try:
