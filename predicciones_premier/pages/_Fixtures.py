@@ -95,8 +95,15 @@ if not fixtures_df.empty:
                         row["home_team"],
                         "https://upload.wikimedia.org/wikipedia/commons/4/49/Football.png",
                     )
-                    st.image(home_logo, width=40)
-                    st.markdown(f"**{row['home_team']}**")
+                    st.markdown(
+                        f'''
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <img src="{home_logo}" width="40" style="background:transparent; border:none; box-shadow:none;">
+                            <span style="color:#00ff99; font-weight:bold; font-family:Courier New;">{row["home_team"]}</span>
+                        </div>
+                        ''',
+                        unsafe_allow_html=True
+                    )
 
                 with col2:
                     st.markdown(f"**VS**")
@@ -108,8 +115,15 @@ if not fixtures_df.empty:
                         row["away_team"],
                         "https://upload.wikimedia.org/wikipedia/commons/4/49/Football.png",
                     )
-                    st.image(away_logo, width=40)
-                    st.markdown(f"**{row['away_team']}**")
+                    st.markdown(
+                        f"""
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <img src="{away_logo}" width="40" style="background:transparent; border:none; box-shadow:none;">
+                            <span style="color:#00ff99; font-weight:bold; font-family:Courier New;">{row["away_team"]}</span>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
 
                 with col4:
                     # Botón para predecir este partido
@@ -145,13 +159,29 @@ if not fixtures_df.empty:
                     row["home_team"],
                     "https://upload.wikimedia.org/wikipedia/commons/4/49/Football.png",
                 )
-                st.markdown(f"**🏠 {row['home_team']}**")
+                st.markdown(
+                        f"""
+                    <div style="display:flex; flex-direction:column; align-items:center;">
+                        <img src="{home_logo}" width="40" style="background:transparent; border:none; box-shadow:none;">
+                        <span style="color:#00ff99; font-weight:bold; font-family:Courier New;">{row["home_team"]}</span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
                 # Aquí podrías añadir estadísticas del equipo local
                 st.caption(" Estadísticas detalladas próximamente...")
 
             with col2:
                 away_logo = TEAM_LOGOS.get(row['away_team'], "https://upload.wikimedia.org/wikipedia/commons/4/49/Football.png")
-                st.markdown(f"**✈️ {row['away_team']}**")
+                st.markdown(
+                    f"""
+                    <div style="display:flex; flex-direction:column; align-items:center;">
+                        <img src="{away_logo}" width="40" style="background:transparent; border:none; box-shadow:none;">
+                        <span style="color:#00ff99; font-weight:bold; font-family:Courier New;">{row["away_team"]}</span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
                 # Estadísticas visitante
                 st.caption(" Estadísticas detalladas próximamente...")
 
