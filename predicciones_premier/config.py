@@ -1,6 +1,36 @@
 # config.py - Configuración global
 import streamlit as st
 
+# =========================
+# COLORES PRINCIPALES
+# =========================
+PRIMARY_COLOR = "#00ff99"  # Verde neón: títulos, bordes, glow
+SECONDARY_COLOR = "#ffdd00"  # Amarillo neón: empate, acentos secundarios
+ERROR_COLOR = "#ff5555"  # Rojo: errores o alertas
+BACKGROUND_COLOR = "rgba(0,0,0,0.3)"  # Fondo semi-transparente para tarjetas
+APP_BG_GRADIENT = (
+    "linear-gradient(180deg, #0f0c29, #302b63, #24243e)"  # Fondo general de la app
+)
+SIDEBAR_GRADIENT = "linear-gradient(180deg, #2b004f, #0f172a)"  # Fondo del sidebar
+
+# =========================
+# ESTILOS DINÁMICOS PARA TARJETAS DE PREDICCIÓN
+# =========================
+PREDICTION_CARD_STYLE = f"""
+    background: {BACKGROUND_COLOR};       /* Fondo semi-transparente */
+    border: 2px solid {PRIMARY_COLOR};    /* Borde verde neón */
+    border-radius: 12px;                   /* Esquinas redondeadas */
+    padding: 20px;                         /* Espaciado interno */
+    margin-bottom: 20px;                   /* Separación de otros elementos */
+    box-shadow: 0 0 15px {PRIMARY_COLOR}; /* Sombra verde neón */
+"""
+
+PREDICTION_CARD_TITLE_STYLE = f"""
+    text-align: center;                    /* Centrar texto */
+    color: {PRIMARY_COLOR};                /* Color verde neón */
+"""
+
+
 def setup_page():
     """Configura CSS global"""
     st.markdown(

@@ -7,7 +7,7 @@ from config import setup_page, IMAGES
 from utils.predictor import PremierLeaguePredictor
 from components.prediction_card import show_prediction_card
 from components.ads import show_bet365_ad
-
+from config import PREDICTION_CARD_STYLE,PREDICTION_CARD_TITLE_STYLE
 setup_page()
 st.image(
     IMAGES["premier_banner"],
@@ -99,25 +99,34 @@ def run_prediction(home_team, away_team):
         )
 
     st.success("¡Predicción completada!")
+    st.markdown(
+        f"""
+        <div style="{PREDICTION_CARD_STYLE}">
+            <h2 style="{PREDICTION_CARD_TITLE_STYLE}">Predicción: {home_team} vs {away_team}</h2>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     show_prediction_card(prediction, home_team, away_team)
 
     col1, col2, col3 = st.columns(3)
+
     with col1:
-        st.markdown(
-            f'<h3 style="color:#00ff99;">Local gana: {prediction["probabilities"]["home"]}%</h3>',
+        col1.markdown(
+            f'<h3 style="color:#00ff99;text-align:center;">Local gana<br>{prediction["probabilities"]["home"]}%</h3>',
             unsafe_allow_html=True,
         )
     with col2:
-        st.markdown(
-            f'<h3 style="color:#ffdd00;">Empate: {prediction["probabilities"]["draw"]}%</h3>',
+        col2.markdown(
+            f'<h3 style="color:#ffdd00;text-align:center;">Empate<br>{prediction["probabilities"]["draw"]}%</h3>',
             unsafe_allow_html=True,
         )
     with col3:
-        st.markdown(
-            f'<h3 style="color:#ff5555;">Visitante gana: {prediction["probabilities"]["away"]}%</h3>',
-            unsafe_allow_html=True,
-        )
+        col3.markdown(
+        f'<h3 style="color:#ff5555;text-align:center;">Visitante gana<br>{prediction["probabilities"]["away"]}%</h3>',
+        unsafe_allow_html=True,
+    )
 
     chart_data = pd.DataFrame(
         {
@@ -137,12 +146,30 @@ def run_prediction(home_team, away_team):
         ordered=True,
     )
     chart_data = chart_data.sort_values("Resultado")
+    st.markdown(
+        '<div style="background:rgba(0,255,153,0.05);padding:12px;border-radius:12px;">',
+        unsafe_allow_html=True,
+    )
     st.bar_chart(chart_data.set_index("Resultado"))
+    st.markdown("</div>", unsafe_allow_html=True)
 
     with st.expander("ANÁLISIS DETALLADO DE IA", expanded=True):
-        st.markdown('<div style="background:rgba(0,255,153,0.1);padding:10px;border-radius:12px;">', unsafe_allow_html=True)
-        st.write(gemini_analysis)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div style="
+                background: rgba(0,255,153,0.08);
+                border-left: 4px solid #00ff99;
+                padding: 15px;
+                border-radius: 12px;
+                font-family: Courier New, monospace;
+                color: #fff;
+                line-height:1.5;
+            ">
+            {gemini_analysis}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     show_bet365_ad()
 
