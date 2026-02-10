@@ -38,6 +38,8 @@ def setup_page():
         }
         /* Imagen principal */
         .stImage img {
+            background: transparent !important;
+            box-shadow: none !important;
             border-radius: 12px;
             box-shadow: 0 0 20px rgba(0,255,153,0.3);
             transition: all 0.4s ease-in-out;
