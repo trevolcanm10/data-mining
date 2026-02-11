@@ -1,7 +1,7 @@
 from utils.predictor import PremierLeaguePredictor
 import pandas as pd
 
-print("\n🚀 TEST GENERAL DEL MODELO PREMIER LEAGUE\n")
+print("\n TEST GENERAL DEL MODELO PREMIER LEAGUE\n")
 
 predictor = PremierLeaguePredictor()
 
