@@ -751,9 +751,9 @@ class PremierLeaguePredictor:
         ) as e:
             try:
                 import streamlit as st
-                st.error(f"⚠️ Error ejecutando Gemini API: {type(e).__name__} - {str(e)}")
+                st.write("Límite de peticiones alcanzado")
             except ImportError:
-                print(f"⚠️ Error ejecutando Gemini API: {type(e).__name__} - {str(e)}")
+                print(f"Error ejecutando Gemini API: {type(e).__name__} - {str(e)}")
                 
             home_p = prediction_result["probabilities"]["home"]
             draw_p = prediction_result["probabilities"]["draw"]
