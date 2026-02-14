@@ -625,14 +625,13 @@ class PremierLeaguePredictor:
         # --- Generar clave única ---
         key = f"{today}_{home_team}_vs_{away_team}_{confidence}"
 
-        # --- 1️⃣ Revisar cache ---
+        # --- Revisar cache ---
         if key in self.gemini_cache:
             return self.gemini_cache[key]
-        # --- 2️⃣ Límite máximo diario/local ---
+        # --- Límite máximo diario/local ---
         if len(self.gemini_cache) > 200:
             return "Límite diario alcanzado. Usa análisis estadístico local."
         try:
-            from google import genai
             import streamlit as st
             # from dotenv import load_dotenv
             # import os
@@ -642,42 +641,44 @@ class PremierLeaguePredictor:
             api_key = st.secrets.get("GOOGLE_AI_API_KEY")
             if not api_key:
                 return "Análisis no disponible - Configura API key"
+            else:
+                from google import genai
 
-            client = genai.Client(api_key=api_key)
+                client = genai.Client(api_key=api_key)
 
-            resumen = self.build_match_summary(home_team, away_team, prediction_result)
+                resumen = self.build_match_summary(home_team, away_team, prediction_result)
 
-            prompt = f"""
-            Eres un analista deportivo profesional. Tu objetivo principal es dar recomendaciones de apuestas
-            basadas en la cantidad de goles totales (por ejemplo: más de 1.5 goles, más de 2.5 goles), 
-            pero sin dejar de lado las apuestas tradicionales de resultado (local, empate, visitante) y otras métricas
-            como corners o tendencias de juego.
+                prompt = f"""
+                Eres un analista deportivo profesional. Tu objetivo principal es dar recomendaciones de apuestas
+                basadas en la cantidad de goles totales (por ejemplo: más de 1.5 goles, más de 2.5 goles), 
+                pero sin dejar de lado las apuestas tradicionales de resultado (local, empate, visitante) y otras métricas
+                como corners o tendencias de juego.
 
-            📌 Usa las estadísticas reales de cada equipo disponibles en este resumen y prioriza escenarios
-            de goles que tengan alta probabilidad según el historial de los equipos, pero sé conservador
-            y coherente.
+                📌 Usa las estadísticas reales de cada equipo disponibles en este resumen y prioriza escenarios
+                de goles que tengan alta probabilidad según el historial de los equipos, pero sé conservador
+                y coherente.
 
-            RESUMEN DISPONIBLE:
-            {resumen}
+                RESUMEN DISPONIBLE:
+                {resumen}
 
-            Devuelve en formato estricto:
+                Devuelve en formato estricto:
 
-            1. ANÁLISIS GENERAL
-            2. 📌 APUESTA GOLES (total esperado, +1.5, +2.5, etc.)
-            3. 📌 APUESTA ESTRUCTURA (resultado seguro: local/empate/visitante)
-            4. ⚽ APUESTA DINÁMICA (goles por tiempo, corners, tendencias)
-            5. JUSTIFICACIÓN TÉCNICA (xG, defensa, tendencias, forma reciente)
-            6. MÉTRICA CLAVE (escenario esperado de goles y resultado)
+                1. ANÁLISIS GENERAL
+                2. 📌 APUESTA GOLES (total esperado, +1.5, +2.5, etc.)
+                3. 📌 APUESTA ESTRUCTURA (resultado seguro: local/empate/visitante)
+                4. ⚽ APUESTA DINÁMICA (goles por tiempo, corners, tendencias)
+                5. JUSTIFICACIÓN TÉCNICA (xG, defensa, tendencias, forma reciente)
+                6. MÉTRICA CLAVE (escenario esperado de goles y resultado)
 
-            Sé claro y evita jerga técnica compleja: explica xG, xGA o Deep completions en términos de goles o defensa.
-            """
+                Sé claro y evita jerga técnica compleja: explica xG, xGA o Deep completions en términos de goles o defensa.
+                """
 
-            response = client.models.generate_content(
-                model="gemini-2.5-flash", contents=prompt
-            )
-            self.gemini_cache[key] = response.text
-            self.save_cache()
-            return response.text
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash", contents=prompt
+                )
+                self.gemini_cache[key] = response.text
+                self.save_cache()
+                return response.text
 
         except (ImportError, AttributeError, RuntimeError):
             # --- fallback local ---

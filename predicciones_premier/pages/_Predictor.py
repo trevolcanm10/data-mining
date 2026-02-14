@@ -190,7 +190,7 @@ if "predict_home" in st.session_state and "predict_away" in st.session_state:
     del st.session_state["predict_away"]
     st.stop()
 
-if st.button("PREDECIRPARTIDO", type="primary", use_container_width=True):
+if st.button("PREDECIR---PARTIDO", type="primary", use_container_width=True):
     if home_team == away_team:
         st.markdown(
             '<div class="st-error" style="color:#ff5555;font-weight:bold;">Selecciona equipos diferentes</div>',
