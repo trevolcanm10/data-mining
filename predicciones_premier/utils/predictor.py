@@ -16,6 +16,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.calibration import CalibratedClassifierCV
 
+
 # from sklearn.linear_model import LogisticRegression
 
 warnings.filterwarnings("ignore")
@@ -675,7 +676,7 @@ class PremierLeaguePredictor:
             self.save_cache()
             return response.text
 
-        except genai.errors.QuotaExceededError:
+        except (ImportError, AttributeError, RuntimeError):
             # --- fallback local ---
             home_p = prediction_result["probabilities"]["home"]
             draw_p = prediction_result["probabilities"]["draw"]
@@ -697,6 +698,3 @@ class PremierLeaguePredictor:
                 f"- Recomendación: basarse en tendencias recientes y xG de equipos."
             )
             return fallback
-
-        except (ImportError, AttributeError, RuntimeError) as e:
-            return f"Análisis IA temporalmente no disponible. Error: {str(e)}"

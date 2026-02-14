@@ -17,3 +17,4 @@ google-generativeai==0.3.2
 lxml>=5.1.0
 
 statsmodels>=0.14.1
+google-generativeai==0.3.2
