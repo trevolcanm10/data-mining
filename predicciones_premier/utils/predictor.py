@@ -732,7 +732,7 @@ class PremierLeaguePredictor:
             self.save_cache()
             return response.text
         except Exception as e:
-            print(f"⚠️ Error ejecutando Gemini API: {type(e).__name__} -> {e}")
+            st.error(f"⚠️ Error ejecutando Gemini API: {type(e).__name__} -> {e}")
             # --- fallback local en caso de fallo API ---
             home_p = prediction_result["probabilities"]["home"]
             draw_p = prediction_result["probabilities"]["draw"]
