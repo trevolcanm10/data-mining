@@ -694,9 +694,13 @@ class PremierLeaguePredictor:
         # 3️⃣ Ejecutar API si hay clave
         # ===============================
         try:
-            from google import genai
-
+            import google.generativeai as genai
+            import sys
+            # Engañar al import antiguo
+            sys.modules["google.genai"] = genai
             client = genai.Client(api_key=api_key)
+            # Configurar API key (solo si no la configuras dentro de la función)
+            genai.configure(api_key=os.getenv("GOOGLE_AI_API_KEY"))
 
             resumen = self.build_match_summary(home_team, away_team, prediction_result)
 
