@@ -732,14 +732,13 @@ class PremierLeaguePredictor:
             self.save_cache()
             return response.text
         except Exception as e:
-            print(f"⚠️ Error ejecutando Gemini API: {e}")
+            print(f"⚠️ Error ejecutando Gemini API: {type(e).__name__} -> {e}")
             # --- fallback local en caso de fallo API ---
             home_p = prediction_result["probabilities"]["home"]
             draw_p = prediction_result["probabilities"]["draw"]
             away_p = prediction_result["probabilities"]["away"]
             avg_goals = prediction_result.get("expected_goals", (home_p + away_p) / 2)
             fallback = (
-                f"DEBUG: Fallback activado por ausencia de API key)"
                 f"💡 Límite de peticiones alcanzado o error API. Fallback estadístico:\n"
                 f"- Probabilidades: Local {home_p}%, Empate {draw_p}%, Visitante {away_p}%\n"
                 f"- Escenario de goles: +1.5 probable, promedio esperado {avg_goals:.1f} goles.\n"
