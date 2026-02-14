@@ -748,9 +748,13 @@ class PremierLeaguePredictor:
             KeyError,
             ClientError,
             requests.exceptions.RequestException,
-        ):
-            # --- fallback local en caso de fallo API ---
-            print(f"Error ejecutando Gemini API: {type(e).__name__} - {e}")
+        ) as e:
+            try:
+                import streamlit as st
+                st.error(f"⚠️ Error ejecutando Gemini API: {type(e).__name__} - {str(e)}")
+            except ImportError:
+                print(f"⚠️ Error ejecutando Gemini API: {type(e).__name__} - {str(e)}")
+                
             home_p = prediction_result["probabilities"]["home"]
             draw_p = prediction_result["probabilities"]["draw"]
             away_p = prediction_result["probabilities"]["away"]
