@@ -171,9 +171,20 @@ class PremierLeaguePredictor:
         # from dotenv import load_dotenv
         # load_dotenv()
         import streamlit as st
-        API_KEY = st.secrets.get("FOOTBALL_DATA_API_KEY")
-        if not API_KEY:
-            raise ValueError("No se encontró FOOTBALL_DATA_API_KEY en Streamlit secrets")
+        import os
+        # 1️⃣ Intento Streamlit Cloud
+        API_KEY = st.secrets.get("FOOTBALL_DATA_API_KEY", None)
+
+        # 2️⃣ Si no está, intento variable de entorno local
+        if API_KEY is None:
+            API_KEY = os.getenv("FOOTBALL_DATA_API_KEY", None)
+
+        # 3️⃣ Error claro si no hay ninguna clave
+        if API_KEY is None:
+            raise ValueError(
+                "No se encontró FOOTBALL_DATA_API_KEY ni en Streamlit secrets ni en variable de entorno local."
+            )
+
         url = "https://api.football-data.org/v4/competitions/PL/matches"
         headers = {"X-Auth-Token": API_KEY}
 

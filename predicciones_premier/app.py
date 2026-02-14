@@ -9,8 +9,6 @@ from components.footer import show_footer
 # from components.prediction_card import show_prediction_card
 from config import setup_page
 # Cargar Font Awesome
-# 🔹 TEST TEMPORAL: mostrar si la API Key de Gemini se lee correctamente
-st.write("API Key leída:", st.secrets.get("GOOGLE_AI_API_KEY"))
 st.markdown(
     '<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/'
     'css/all.min.css" rel="stylesheet">',
