@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import ast
 import pickle
+import traceback
 import requests
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import HistGradientBoostingClassifier
@@ -181,7 +182,6 @@ class PremierLeaguePredictor:
         API_KEY = None
         try:
             import streamlit as st
-            import traceback
             try:
                 API_KEY = st.secrets.get("FOOTBALL_DATA_API_KEY", None)
             except st.errors.StreamlitSecretNotFoundError:
