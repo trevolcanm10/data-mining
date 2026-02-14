@@ -7,6 +7,7 @@ predictor = PremierLeaguePredictor()
 
 df = predictor.historical_df.sample(100)
 
+df.info()
 draws = 0
 
 for _, row in df.iterrows():

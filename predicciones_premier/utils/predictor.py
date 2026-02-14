@@ -10,6 +10,8 @@ import os
 import pandas as pd
 import numpy as np
 import ast
+import pickle
+from google.genai import errors
 import requests
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import HistGradientBoostingClassifier
@@ -37,6 +39,22 @@ class PremierLeaguePredictor:
         self.load_historical_data()
         self.build_team_stats(n_last=10)
         self.train_model()
+
+        # ---------- CACHE DE GEMINI ----------
+        self.cache_file = "data/historical_cache.pkl"
+        if os.path.exists(self.cache_file):
+            try:
+                with open(self.cache_file, "rb") as f:
+                    self.gemini_cache = pickle.load(f)
+            except:
+                print("Cache corrupto, reiniciando...")
+                self.gemini_cache = {}
+        else:
+            self.gemini_cache = {}
+
+    def save_cache(self):
+        with open(self.cache_file, "wb") as f:
+            pickle.dump(self.gemini_cache, f)
 
     def _load_team_mapping(self):
         "Mapeo de nombres API vs Understat"
@@ -594,11 +612,22 @@ class PremierLeaguePredictor:
         return new_probs / new_probs.sum()
 
     def get_gemini_analysis(self, home_team, away_team, prediction_result):
+        # --- Cache por mes para que no sea eterno ---
+        today = datetime.now().strftime("%Y-%m")
+        confidence = prediction_result["confidence"]
+        # --- Generar clave única ---
+        key = f"{today}_{home_team}_vs_{away_team}_{confidence}"
+
+        # --- 1️⃣ Revisar cache ---
+        if key in self.gemini_cache:
+            return self.gemini_cache[key]
+        # --- 2️⃣ Límite máximo diario/local ---
+        if len(self.gemini_cache) > 200:
+            return "Límite diario alcanzado. Usa análisis estadístico local."
         try:
             from google import genai
             from dotenv import load_dotenv
             # import os
-
             load_dotenv()
 
             api_key = os.getenv("GOOGLE_AI_API_KEY")
@@ -610,30 +639,59 @@ class PremierLeaguePredictor:
             resumen = self.build_match_summary(home_team, away_team, prediction_result)
 
             prompt = f"""
-            Eres un analista deportivo profesional.
-            Explica el partido de forma clara para cualquier aficionado que incursiona en las apuestas,
-            trata de no usar términos técnicos como xG, xGA o Deep completions, por el contrario traduce
-            estos terminos para que el usuario pueda comprenderte 
+            Eres un analista deportivo profesional. Tu objetivo principal es dar recomendaciones de apuestas
+            basadas en la cantidad de goles totales (por ejemplo: más de 1.5 goles, más de 2.5 goles), 
+            pero sin dejar de lado las apuestas tradicionales de resultado (local, empate, visitante) y otras métricas
+            como corners o tendencias de juego.
 
-            📌 RESUMEN DISPONIBLE:
+            📌 Usa las estadísticas reales de cada equipo disponibles en este resumen y prioriza escenarios
+            de goles que tengan alta probabilidad según el historial de los equipos, pero sé conservador
+            y coherente.
+
+            RESUMEN DISPONIBLE:
             {resumen}
 
             Devuelve en formato estricto:
 
             1. ANÁLISIS GENERAL
-            2. 📌 APUESTA ESTRUCTURA (segura)
-            3. ⚽ APUESTA DINÁMICA (goles/corners)
-            4. JUSTIFICACIÓN TÉCNICA (xG, defensa, tendencias)
-            5. MÉTRICA CLAVE (escenario esperado)
+            2. 📌 APUESTA GOLES (total esperado, +1.5, +2.5, etc.)
+            3. 📌 APUESTA ESTRUCTURA (resultado seguro: local/empate/visitante)
+            4. ⚽ APUESTA DINÁMICA (goles por tiempo, corners, tendencias)
+            5. JUSTIFICACIÓN TÉCNICA (xG, defensa, tendencias, forma reciente)
+            6. MÉTRICA CLAVE (escenario esperado de goles y resultado)
 
-            Sé conservador y coherente.
+            Sé claro y evita jerga técnica compleja: explica xG, xGA o Deep completions en términos de goles o defensa.
             """
 
             response = client.models.generate_content(
                 model="gemini-2.5-flash", contents=prompt
             )
-
+            self.gemini_cache[key] = response.text
+            self.save_cache()
             return response.text
+
+        except genai.errors.QuotaExceededError:
+            # --- fallback local ---
+            home_p = prediction_result["probabilities"]["home"]
+            draw_p = prediction_result["probabilities"]["draw"]
+            away_p = prediction_result["probabilities"]["away"]
+
+            avg_goals = prediction_result.get(
+                "expected_goals",
+                (
+                    prediction_result["probabilities"]["home"]
+                    + prediction_result["probabilities"]["away"]
+                )
+                / 2,
+            )
+
+            fallback = (
+                f"💡 Límite de peticiones alcanzado. Fallback estadístico:\n"
+                f"- Probabilidades: Local {home_p}%, Empate {draw_p}%, Visitante {away_p}%\n"
+                f"- Escenario de goles: +1.5 probable, promedio esperado {avg_goals:.1f} goles.\n"
+                f"- Recomendación: basarse en tendencias recientes y xG de equipos."
+            )
+            return fallback
 
         except (ImportError, AttributeError, RuntimeError) as e:
             return f"Análisis IA temporalmente no disponible. Error: {str(e)}"

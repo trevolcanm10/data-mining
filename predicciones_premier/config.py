@@ -35,6 +35,7 @@ def setup_page():
     """Configura CSS global"""
     st.markdown(
         """
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .stApp {
             background: linear-gradient(180deg, #0f0c29, #302b63, #24243e);
