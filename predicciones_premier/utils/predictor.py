@@ -682,8 +682,8 @@ class PremierLeaguePredictor:
             draw_p = prediction_result["probabilities"]["draw"]
             away_p = prediction_result["probabilities"]["away"]
             avg_goals = prediction_result.get("expected_goals", (home_p + away_p) / 2)
-            print("DEBUG: Fallback activado por ausencia de API key")
             fallback = (
+                f"DEBUG: Fallback activado por ausencia de API key)"
                 f"💡 Límite de peticiones alcanzado o API key no disponible. Fallback estadístico:\n"
                 f"- Probabilidades: Local {home_p}%, Empate {draw_p}%, Visitante {away_p}%\n"
                 f"- Escenario de goles: +1.5 probable, promedio esperado {avg_goals:.1f} goles.\n"
