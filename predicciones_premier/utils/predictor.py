@@ -168,12 +168,13 @@ class PremierLeaguePredictor:
 
     def fetch_fixtures(self, days_ahead=30):
         "Obtener partidos futuros"
-        from dotenv import load_dotenv
-
-        load_dotenv()
-        API_KEY = os.getenv("FOOTBALL_DATA_API_KEY")
+        # from dotenv import load_dotenv
+        # load_dotenv()
+        import streamlit as st
+        API_KEY = st.secrets.get("FOOTBALL_DATA_API_KEY")
+        if not API_KEY:
+            raise ValueError("No se encontró FOOTBALL_DATA_API_KEY en Streamlit secrets")
         url = "https://api.football-data.org/v4/competitions/PL/matches"
-
         headers = {"X-Auth-Token": API_KEY}
 
         # Fechas dinámicas
@@ -632,11 +633,13 @@ class PremierLeaguePredictor:
             return "Límite diario alcanzado. Usa análisis estadístico local."
         try:
             from google import genai
-            from dotenv import load_dotenv
+            import streamlit as st
+            # from dotenv import load_dotenv
             # import os
-            load_dotenv()
+            # load_dotenv()
 
-            api_key = os.getenv("GOOGLE_AI_API_KEY")
+            # api_key = os.getenv("GOOGLE_AI_API_KEY")
+            api_key = st.secrets.get("GOOGLE_AI_API_KEY")
             if not api_key:
                 return "Análisis no disponible - Configura API key"
 
