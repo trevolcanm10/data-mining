@@ -1,11 +1,34 @@
+# ============================
 # Credenciales
+# ============================
 .env
 
+# ============================
 # Archivos de sistema y Python
+# ============================
 __pycache__/
 *.pyc
 .DS_Store
 
-# Carpetas de entorno virtual
+# ============================
+# Entornos virtuales
+# ============================
 env/
 venv/
+
+# ============================
+# Cache de Gemini / Pickle
+# ============================
+historical_cache.pkl
+data/historical_cache.pkl
+*.pkl
+
+# ============================
+# Streamlit
+# ============================
+.streamlit/secrets.toml
+
+# ============================
+# Logs temporales
+# ============================
+*.log
