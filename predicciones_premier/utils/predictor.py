@@ -43,6 +43,11 @@ class PremierLeaguePredictor:
 
         # ---------- CACHE DE GEMINI ----------
         self.cache_file = "data/historical_cache.pkl"
+        # Crear carpeta si no existe
+        cache_dir = os.path.dirname(self.cache_file)
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir, exist_ok=True)
+        # Cargar cache si existe
         if os.path.exists(self.cache_file):
             try:
                 with open(self.cache_file, "rb") as f:
