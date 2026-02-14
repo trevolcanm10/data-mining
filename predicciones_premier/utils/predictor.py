@@ -176,6 +176,7 @@ class PremierLeaguePredictor:
         API_KEY = None
         try:
             import streamlit as st
+            import traceback
             try:
                 API_KEY = st.secrets.get("FOOTBALL_DATA_API_KEY", None)
             except st.errors.StreamlitSecretNotFoundError:
@@ -733,7 +734,10 @@ class PremierLeaguePredictor:
             self.save_cache()
             return response.text
         except Exception as e:
-            print(f"⚠️ Error ejecutando Gemini API: {e}")
+            st.error("⚠️ Error ejecutando Gemini API")
+            st.error(f"Tipo: {type(e).__name__}")
+            st.error(f"Mensaje: {e}")
+            st.text(traceback.format_exc())
             # --- fallback local en caso de fallo API ---
             home_p = prediction_result["probabilities"]["home"]
             draw_p = prediction_result["probabilities"]["draw"]
