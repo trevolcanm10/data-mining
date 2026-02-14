@@ -683,6 +683,7 @@ class PremierLeaguePredictor:
             away_p = prediction_result["probabilities"]["away"]
             avg_goals = prediction_result.get("expected_goals", (home_p + away_p) / 2)
             fallback = (
+                
                 f"💡 Límite de peticiones alcanzado o API key no disponible. Fallback estadístico:\n"
                 f"- Probabilidades: Local {home_p}%, Empate {draw_p}%, Visitante {away_p}%\n"
                 f"- Escenario de goles: +1.5 probable, promedio esperado {avg_goals:.1f} goles.\n"
@@ -694,13 +695,9 @@ class PremierLeaguePredictor:
         # 3️⃣ Ejecutar API si hay clave
         # ===============================
         try:
-            import google.generativeai as genai
-            import sys
-            # Engañar al import antiguo
-            sys.modules["google.genai"] = genai
+            from google import genai
+
             client = genai.Client(api_key=api_key)
-            # Configurar API key (solo si no la configuras dentro de la función)
-            genai.configure(api_key=os.getenv("GOOGLE_AI_API_KEY"))
 
             resumen = self.build_match_summary(home_team, away_team, prediction_result)
 
@@ -736,7 +733,7 @@ class PremierLeaguePredictor:
             self.save_cache()
             return response.text
         except Exception as e:
-            st.error(f"⚠️ Error ejecutando Gemini API: {type(e).__name__} -> {e}")
+            print(f"⚠️ Error ejecutando Gemini API: {e}")
             # --- fallback local en caso de fallo API ---
             home_p = prediction_result["probabilities"]["home"]
             draw_p = prediction_result["probabilities"]["draw"]

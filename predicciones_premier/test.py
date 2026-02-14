@@ -1,84 +1,15 @@
-from utils.predictor import PremierLeaguePredictor
-import pandas as pd
+import google.generativeai as genai
 
-print("\n TEST GENERAL DEL MODELO PREMIER LEAGUE\n")
+# 1️⃣ Configurar tu API key (opcional, solo para probar conectividad)
+genai.configure(api_key="AIzaSyCguzK1g4Khd1-BVjfrU0OnLRcgLxq4fdk")
 
-predictor = PremierLeaguePredictor()
+# 2️⃣ Listar todos los modelos disponibles
+print("=== Modelos disponibles ===")
+for m in genai.list_models():
+    print(m.name, "-", getattr(m, "display_name", "sin display_name"))
+    print("Métodos soportados:", getattr(m, "supported_generation_methods", []))
+    print("---")
 
-df = predictor.historical_df.sample(100)
-
-df.info()
-draws = 0
-
-for _, row in df.iterrows():
-    res = predictor.predict_match(row["team_home"], row["team_away"])
-    if res["prediction"] == "draw":
-        draws += 1
-
-print("Draw rate:", draws, "%")
-
-matches = [
-    ("Manchester City", "Chelsea"),
-    ("Arsenal", "Tottenham"),
-    ("Liverpool", "Manchester United"),
-    ("Newcastle United", "Everton"),
-    ("Brighton", "West Ham"),
-]
-
-results = []
-
-print("===============================")
-print("⚽ TEST DE PREDICCIONES")
-print("===============================\n")
-
-for home, away in matches:
-
-    res = predictor.predict_match(home, away)
-
-    probs = res["probabilities"]
-
-    print(f"🏟️ {home} vs {away}")
-    print(f"➡️ Predicción: {res['prediction']} ({res['confidence']}%)")
-
-    print(
-        f"   Probabilidades: "
-        f"Home={probs['home']}% | "
-        f"Draw={probs['draw']}% | "
-        f"Away={probs['away']}%"
-    )
-
-    print("-" * 50)
-
-    results.append(
-        {
-            "home": home,
-            "away": away,
-            "pred": res["prediction"],
-            "home_win": probs["home"],
-            "draw": probs["draw"],
-            "away_win": probs["away"],
-        }
-    )
-
-
-# ===============================
-# 📊 RESUMEN FINAL
-# ===============================
-
-df = pd.DataFrame(results)
-
-print("\n===============================")
-print("📌 RESUMEN TABLA FINAL")
-print("===============================\n")
-
-print(df)
-
-print("\n===============================")
-print("📊 PROMEDIOS GENERALES")
-print("===============================\n")
-
-print("Home Win Avg:", round(df["home_win"].mean(), 2), "%")
-print("Draw Avg:", round(df["draw"].mean(), 2), "%")
-print("Away Win Avg:", round(df["away_win"].mean(), 2), "%")
-
-print("\n✅ TEST TERMINADO\n")
+# 3️⃣ Listar las funciones del módulo para ver lo que realmente puedes usar
+print("=== Funciones disponibles en google.generativeai ===")
+print([f for f in dir(genai) if not f.startswith("_")])
