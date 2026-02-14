@@ -678,6 +678,7 @@ class PremierLeaguePredictor:
         # 2️⃣ Si no hay clave, usar fallback local
         # ===============================
         if not api_key:
+            print(f"⚠️ Error ejecutando Gemini API: {e}")
             home_p = prediction_result["probabilities"]["home"]
             draw_p = prediction_result["probabilities"]["draw"]
             away_p = prediction_result["probabilities"]["away"]
@@ -689,7 +690,7 @@ class PremierLeaguePredictor:
                 f"- Recomendación: basarse en tendencias recientes y xG de equipos."
             )
             return fallback
-        
+
         # ===============================
         # 3️⃣ Ejecutar API si hay clave
         # ===============================
