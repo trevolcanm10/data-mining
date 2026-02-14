@@ -170,15 +170,26 @@ class PremierLeaguePredictor:
         "Obtener partidos futuros"
         # from dotenv import load_dotenv
         # load_dotenv()
-        import streamlit as st
         import os
-        # 1️⃣ Intento Streamlit Cloud
-        API_KEY = st.secrets.get("FOOTBALL_DATA_API_KEY", None)
-
-        # 2️⃣ Si no está, intento variable de entorno local
+        import requests
+        # 1️⃣ Intento usar Streamlit secrets si estamos en Streamlit
+        API_KEY = None
+        try:
+            import streamlit as st
+            try:
+                API_KEY = st.secrets.get("FOOTBALL_DATA_API_KEY", None)
+            except st.errors.StreamlitSecretNotFoundError:
+                API_KEY = None
+        except ModuleNotFoundError:
+            API_KEY = None
+        # 2️⃣ Si no está, intento variable de entorno local (con dotenv)
         if API_KEY is None:
+            try:
+                from dotenv import load_dotenv
+                load_dotenv()  # Carga .env si existe
+            except ImportError:
+                pass
             API_KEY = os.getenv("FOOTBALL_DATA_API_KEY", None)
-
         # 3️⃣ Error claro si no hay ninguna clave
         if API_KEY is None:
             raise ValueError(
@@ -642,72 +653,92 @@ class PremierLeaguePredictor:
         # --- Límite máximo diario/local ---
         if len(self.gemini_cache) > 200:
             return "Límite diario alcanzado. Usa análisis estadístico local."
+        # ===============================
+        # 1️⃣ Obtener API key de Streamlit o local
+        # ===============================
+        api_key = None
         try:
             import streamlit as st
-            # from dotenv import load_dotenv
-            # import os
-            # load_dotenv()
-
-            # api_key = os.getenv("GOOGLE_AI_API_KEY")
-            api_key = st.secrets.get("GOOGLE_AI_API_KEY")
-            if not api_key:
-                return "Análisis no disponible - Configura API key"
-            else:
-                from google import genai
-
-                client = genai.Client(api_key=api_key)
-
-                resumen = self.build_match_summary(home_team, away_team, prediction_result)
-
-                prompt = f"""
-                Eres un analista deportivo profesional. Tu objetivo principal es dar recomendaciones de apuestas
-                basadas en la cantidad de goles totales (por ejemplo: más de 1.5 goles, más de 2.5 goles), 
-                pero sin dejar de lado las apuestas tradicionales de resultado (local, empate, visitante) y otras métricas
-                como corners o tendencias de juego.
-
-                📌 Usa las estadísticas reales de cada equipo disponibles en este resumen y prioriza escenarios
-                de goles que tengan alta probabilidad según el historial de los equipos, pero sé conservador
-                y coherente.
-
-                RESUMEN DISPONIBLE:
-                {resumen}
-
-                Devuelve en formato estricto:
-
-                1. ANÁLISIS GENERAL
-                2. 📌 APUESTA GOLES (total esperado, +1.5, +2.5, etc.)
-                3. 📌 APUESTA ESTRUCTURA (resultado seguro: local/empate/visitante)
-                4. ⚽ APUESTA DINÁMICA (goles por tiempo, corners, tendencias)
-                5. JUSTIFICACIÓN TÉCNICA (xG, defensa, tendencias, forma reciente)
-                6. MÉTRICA CLAVE (escenario esperado de goles y resultado)
-
-                Sé claro y evita jerga técnica compleja: explica xG, xGA o Deep completions en términos de goles o defensa.
-                """
-
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash", contents=prompt
-                )
-                self.gemini_cache[key] = response.text
-                self.save_cache()
-                return response.text
-
-        except (ImportError, AttributeError, RuntimeError):
-            # --- fallback local ---
+            try:
+                api_key = st.secrets.get("GOOGLE_AI_API_KEY", None)
+            except st.errors.StreamlitSecretNotFoundError:
+                api_key = None
+        except ModuleNotFoundError:
+            api_key = None
+        # Fallback a .env local
+        if api_key is None:
+            try:
+                from dotenv import load_dotenv
+                load_dotenv()
+            except ImportError:
+                pass
+            import os
+            api_key = os.getenv("GOOGLE_AI_API_KEY", None)
+        # ===============================
+        # 2️⃣ Si no hay clave, usar fallback local
+        # ===============================
+        if not api_key:
             home_p = prediction_result["probabilities"]["home"]
             draw_p = prediction_result["probabilities"]["draw"]
             away_p = prediction_result["probabilities"]["away"]
-
-            avg_goals = prediction_result.get(
-                "expected_goals",
-                (
-                    prediction_result["probabilities"]["home"]
-                    + prediction_result["probabilities"]["away"]
-                )
-                / 2,
-            )
-
+            avg_goals = prediction_result.get("expected_goals", (home_p + away_p) / 2)
             fallback = (
-                f"💡 Límite de peticiones alcanzado. Fallback estadístico:\n"
+                f"💡 Límite de peticiones alcanzado o API key no disponible. Fallback estadístico:\n"
+                f"- Probabilidades: Local {home_p}%, Empate {draw_p}%, Visitante {away_p}%\n"
+                f"- Escenario de goles: +1.5 probable, promedio esperado {avg_goals:.1f} goles.\n"
+                f"- Recomendación: basarse en tendencias recientes y xG de equipos."
+            )
+            return fallback
+        
+        # ===============================
+        # 3️⃣ Ejecutar API si hay clave
+        # ===============================
+        try:
+            from google import genai
+
+            client = genai.Client(api_key=api_key)
+
+            resumen = self.build_match_summary(home_team, away_team, prediction_result)
+
+            prompt = f"""
+                    Eres un analista deportivo profesional. Tu objetivo principal es dar recomendaciones de apuestas
+                    basadas en la cantidad de goles totales (por ejemplo: más de 1.5 goles, más de 2.5 goles), 
+                    pero sin dejar de lado las apuestas tradicionales de resultado (local, empate, visitante) y otras métricas
+                    como corners o tendencias de juego.
+
+                    📌 Usa las estadísticas reales de cada equipo disponibles en este resumen y prioriza escenarios
+                    de goles que tengan alta probabilidad según el historial de los equipos, pero sé conservador
+                    y coherente.
+
+                    RESUMEN DISPONIBLE:
+                    {resumen}
+
+                    Devuelve en formato estricto:
+
+                    1. ANÁLISIS GENERAL
+                    2. 📌 APUESTA GOLES (total esperado, +1.5, +2.5, etc.)
+                    3. 📌 APUESTA ESTRUCTURA (resultado seguro: local/empate/visitante)
+                    4. ⚽ APUESTA DINÁMICA (goles por tiempo, corners, tendencias)
+                    5. JUSTIFICACIÓN TÉCNICA (xG, defensa, tendencias, forma reciente)
+                    6. MÉTRICA CLAVE (escenario esperado de goles y resultado)
+
+                    Sé claro y evita jerga técnica compleja: explica xG, xGA o Deep completions en términos de goles o defensa.
+                    """
+
+            response = client.models.generate_content(
+                        model="gemini-2.5-flash", contents=prompt
+                    )
+            self.gemini_cache[key] = response.text
+            self.save_cache()
+            return response.text
+        except (ImportError, AttributeError, RuntimeError):
+            # --- fallback local en caso de fallo API ---
+            home_p = prediction_result["probabilities"]["home"]
+            draw_p = prediction_result["probabilities"]["draw"]
+            away_p = prediction_result["probabilities"]["away"]
+            avg_goals = prediction_result.get("expected_goals", (home_p + away_p) / 2)
+            fallback = (
+                f"💡 Límite de peticiones alcanzado o error API. Fallback estadístico:\n"
                 f"- Probabilidades: Local {home_p}%, Empate {draw_p}%, Visitante {away_p}%\n"
                 f"- Escenario de goles: +1.5 probable, promedio esperado {avg_goals:.1f} goles.\n"
                 f"- Recomendación: basarse en tendencias recientes y xG de equipos."
