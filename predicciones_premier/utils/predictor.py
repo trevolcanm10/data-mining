@@ -11,11 +11,12 @@ import pandas as pd
 import numpy as np
 import ast
 import pickle
-from google.genai import errors
+import google.generativeai as genai
 import requests
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.calibration import CalibratedClassifierCV
+
 # from sklearn.linear_model import LogisticRegression
 
 warnings.filterwarnings("ignore")
