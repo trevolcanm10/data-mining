@@ -7,15 +7,19 @@ y gestión de datos históricos mediante tablas.
 from datetime import datetime, timedelta
 import warnings
 import os
-import pandas as pd
-import numpy as np
 import ast
 import pickle
 import traceback
+# ==============================
+# 2️⃣ Third-party imports
+# ==============================
+import pandas as pd
+import numpy as np
 import requests
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.calibration import CalibratedClassifierCV
+from google.genai.errors import ClientError
 
 
 # from sklearn.linear_model import LogisticRegression
@@ -738,12 +742,15 @@ class PremierLeaguePredictor:
             self.gemini_cache[key] = response.text
             self.save_cache()
             return response.text
-        except Exception as e:
-            st.error("⚠️ Error ejecutando Gemini API")
-            st.error(f"Tipo: {type(e).__name__}")
-            st.error(f"Mensaje: {e}")
-            st.text(traceback.format_exc())
+        except (
+            ModuleNotFoundError,
+            ValueError,
+            KeyError,
+            ClientError,
+            requests.exceptions.RequestException,
+        ):
             # --- fallback local en caso de fallo API ---
+            print(f"Error ejecutando Gemini API: {type(e).__name__} - {e}")
             home_p = prediction_result["probabilities"]["home"]
             draw_p = prediction_result["probabilities"]["draw"]
             away_p = prediction_result["probabilities"]["away"]
