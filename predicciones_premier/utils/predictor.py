@@ -11,7 +11,6 @@ import pandas as pd
 import numpy as np
 import ast
 import pickle
-import google.generativeai as genai
 import requests
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import HistGradientBoostingClassifier
@@ -106,12 +105,17 @@ class PremierLeaguePredictor:
             "Luton Town": "Luton Town",
         }
 
-    def load_historical_data(self, path="data/matches.csv"):
-        """
-        Carga el conjunto de datos históricos desde un archivo CSV
-        para el entrenamiento y análisis del modelo.
-        """
-        self.historical_df = pd.read_csv(path)
+    def load_historical_data(self, path=None):
+        #  Directorio donde está predictor.py
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        #  Ruta real al dataset dentro del proyecto
+        dataset_path = os.path.join(
+            base_dir, "..", "data", "matches.csv"
+        )
+        dataset_path = os.path.abspath(dataset_path)
+
+        #  Leer dataset
+        self.historical_df = pd.read_csv(dataset_path)
 
     def build_team_stats(self, n_last=10):
         """
