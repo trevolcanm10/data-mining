@@ -3,24 +3,25 @@
 Módulo de estadísticas detalladas de la Premier League.
 Presenta análisis visuales, xG y métricas de rendimiento de los equipos.
 """
+# ==============================
+# 1️⃣ Standard library imports
+# ==============================
+import datetime
+# ==============================
+# 2️⃣ Third-party imports
+# ==============================
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import datetime
-# import plotly.graph_objects as go
-# from datetime import datetime, timedelta
-
+# ==============================
+# 3️⃣ Local imports
+# ==============================
 # Importar tu predictor
 from config import (
     setup_page,
     PRIMARY_COLOR,
-    SECONDARY_COLOR,
-    PREDICTION_CARD_STYLE,
-    PREDICTION_CARD_TITLE_STYLE,
-    IMAGES,
     TEAM_LOGOS,
-    BACKGROUND_COLOR,
 )
 from utils.predictor import PremierLeaguePredictor
 setup_page()
@@ -92,6 +93,14 @@ with tab1:
     # Función para renderizar cada tarjeta
 
     def render_card(title, value, icon_html):
+        """
+            Renderiza una tarjeta visual en Streamlit con un título, un valor y un ícono.
+
+        Args:
+            title (str): Nombre de la métrica mostrada.
+            value (str | int | float): Valor principal de la tarjeta.
+            icon_html (str): Código HTML del ícono (FontAwesome).
+        """
         st.markdown(
             f"""
         <div style="
@@ -107,7 +116,14 @@ with tab1:
         ">
             <div style="font-size:28px; margin-bottom:8px;">{icon_html}</div>
             <div style="font-size:16px; font-weight:bold; color:#00ff99;">{title}</div>
-            <div style="font-size:22px; font-weight:bold; color:white; margin-top:5px;">{value}</div>
+            <div style="
+                font-size:22px;
+                font-weight:bold;
+                color:white;
+                margin-top:5px;
+            ">
+                {value}
+            </div>
         </div>
         """,
             unsafe_allow_html=True,

@@ -9,17 +9,19 @@ import warnings
 import os
 import ast
 import pickle
-import traceback
 # ==============================
 # 2️⃣ Third-party imports
 # ==============================
 import pandas as pd
 import numpy as np
 import requests
+import streamlit as st
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from google.genai.errors import ClientError
+from utils.cache_db import init_db
+from utils.cache_db import get_analysis, save_analysis
 
 
 # from sklearn.linear_model import LogisticRegression
@@ -45,7 +47,8 @@ class PremierLeaguePredictor:
         self.load_historical_data()
         self.build_team_stats(n_last=10)
         self.train_model()
-
+        # inicializar DB
+        init_db()
         # ---------- CACHE DE GEMINI ----------
         self.cache_file = "data/historical_cache.pkl"
         # Crear carpeta si no existe
@@ -57,8 +60,8 @@ class PremierLeaguePredictor:
             try:
                 with open(self.cache_file, "rb") as f:
                     self.gemini_cache = pickle.load(f)
-            except:
-                print("Cache corrupto, reiniciando...")
+            except (pickle.UnpicklingError, EOFError) as e:
+                print(f"Cache corrupto ({e}), reiniciando...")
                 self.gemini_cache = {}
         else:
             self.gemini_cache = {}
@@ -117,14 +120,24 @@ class PremierLeaguePredictor:
         }
 
     def load_historical_data(self, path=None):
-        #  Directorio donde está predictor.py
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        #  Ruta real al dataset dentro del proyecto
-        dataset_path = os.path.join(
-            base_dir, "..", "data", "matches.csv"
-        )
-        dataset_path = os.path.abspath(dataset_path)
+        """
+        Carga el dataset histórico de partidos.
 
+        Args:
+            path (str, optional): Ruta personalizada al archivo CSV.
+                                Si no se proporciona, se usa data/matches.csv.
+        """
+        # Si el usuario pasa una ruta, usarla
+        if path is not None:
+            dataset_path = path
+        else:
+            #  Directorio donde está predictor.py
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            #  Ruta real al dataset dentro del proyecto
+            dataset_path = os.path.join(
+                base_dir, "..", "data", "matches.csv"
+            )
+            dataset_path = os.path.abspath(dataset_path)
         #  Leer dataset
         self.historical_df = pd.read_csv(dataset_path)
 
@@ -178,14 +191,9 @@ class PremierLeaguePredictor:
 
     def fetch_fixtures(self, days_ahead=30):
         "Obtener partidos futuros"
-        # from dotenv import load_dotenv
-        # load_dotenv()
-        import os
-        import requests
         # 1️⃣ Intento usar Streamlit secrets si estamos en Streamlit
         API_KEY = None
         try:
-            import streamlit as st
             try:
                 API_KEY = st.secrets.get("FOOTBALL_DATA_API_KEY", None)
             except st.errors.StreamlitSecretNotFoundError:
@@ -266,8 +274,13 @@ class PremierLeaguePredictor:
         """
         try:
             d = ast.literal_eval(str(x))  # convierte texto → dict real
-            return d["att"] / d["def"]
-        except:
+
+            att = d.get("att", None)
+            deff = d.get("def", None)
+            if att is None or deff is None or deff == 0:
+                return np.nan
+            return att / deff
+        except (ValueError, SyntaxError, TypeError):
             return np.nan
 
     def prepare_features(self, home_team, away_team):
@@ -653,22 +666,19 @@ class PremierLeaguePredictor:
     def get_gemini_analysis(self, home_team, away_team, prediction_result):
         # --- Cache por mes para que no sea eterno ---
         today = datetime.now().strftime("%Y-%m")
-        confidence = prediction_result["confidence"]
         # --- Generar clave única ---
-        key = f"{today}_{home_team}_vs_{away_team}_{confidence}"
-
-        # --- Revisar cache ---
-        if key in self.gemini_cache:
-            return self.gemini_cache[key]
-        # --- Límite máximo diario/local ---
-        if len(self.gemini_cache) > 200:
-            return "Límite diario alcanzado. Usa análisis estadístico local."
+        key = f"{today}_{home_team}_vs_{away_team}"
+        # ===============================
+        # 0️⃣ Revisar cache en SQLite
+        # ===============================
+        cached = get_analysis(key)
+        if cached:
+            return cached
         # ===============================
         # 1️⃣ Obtener API key de Streamlit o local
         # ===============================
         api_key = None
         try:
-            import streamlit as st
             try:
                 api_key = st.secrets.get("GOOGLE_AI_API_KEY", None)
             except st.errors.StreamlitSecretNotFoundError:
@@ -682,7 +692,6 @@ class PremierLeaguePredictor:
                 load_dotenv()
             except ImportError:
                 pass
-            import os
             api_key = os.getenv("GOOGLE_AI_API_KEY", None)
         # ===============================
         # 2️⃣ Si no hay clave, usar fallback local
@@ -739,9 +748,10 @@ class PremierLeaguePredictor:
             response = client.models.generate_content(
                         model="gemini-2.5-flash", contents=prompt
                     )
-            self.gemini_cache[key] = response.text
-            self.save_cache()
-            return response.text
+            analysis_text = response.text
+            # ✅ Guardar en SQLite
+            save_analysis(key, analysis_text)
+            return analysis_text
         except (
             ModuleNotFoundError,
             ValueError,
@@ -750,7 +760,6 @@ class PremierLeaguePredictor:
             requests.exceptions.RequestException,
         ) as e:
             try:
-                import streamlit as st
                 st.success("Límite de peticiones alcanzado")
             except ImportError:
                 print(f"Error ejecutando Gemini API: {type(e).__name__} - {str(e)}")
