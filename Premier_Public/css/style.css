@@ -1,0 +1,178 @@
+/* ================================
+    SECCIONES GENERALES
+================================ */
+body {
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(180deg,
+                #37003c 0%,
+                #240026 30%,
+                #f5f6fa 100%);
+    color: #111;
+}
+
+header {
+    background-color: #1a1a1a;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+nav a {
+    margin: 0 10px;
+    color: white;
+    text-decoration: none;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 20px;
+}
+
+footer {
+    background-color: #1a1a1a;
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+
+.content-section {
+    margin: 50px auto;
+    max-width: 1100px;
+    padding: 0 20px;
+}
+
+.content-section h2 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    font-weight: 800;
+    color: white;
+    border-left: 8px solid var(--secondary);
+    padding-left: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ================================
+    GRID PARA NOTICIAS Y VIDEOS
+================================ */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* ================================
+    NOTICIAS ESTILO CARD
+================================ */
+.news-item {
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+    transition: all 0.25s ease;
+    border-left: 6px solid #37003c;
+}
+
+.news-item:hover {
+    transform: translateY(-6px);
+    background: white;
+    border-top: 5px solid var(--secondary);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.news-item h3 {
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+}
+
+.news-item h3 a {
+    text-decoration: none;
+    color: #37003c;
+    font-weight: bold;
+}
+
+.news-item h3 a:hover {
+    color: #ff2882;
+}
+
+.news-item p {
+    font-size: 0.92rem;
+    color: #444;
+    line-height: 1.4;
+}
+/* ================================
+    VIDEOS RESPONSIVE
+================================ */
+.video-item {
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 14px;
+    padding: 15px;
+    border-left: 6px solid #37003c;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease;
+}
+
+.video-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(55, 0, 60, 0.25);
+}
+
+.video-item h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: #111;
+}
+
+/* iframe responsive */
+.video-item iframe {
+    width: 100%;
+    height: 200px;
+    border-radius: 12px;
+    border: none;
+}
+
+/* ================================
+RESPONSIVE EXTRA PARA CELULAR
+================================ */
+@media (max-width: 600px) {
+    .content-section h2 {
+        font-size: 1.4rem;
+    }
+
+    .video-item iframe {
+        height: 180px;
+    }
+}
+
+
+.hero {
+    height: 320px;
+    background: url("https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/276621459/original/23e076965dbb02708f08be5198fca4dd2d17b945/design-youtube-banner-for-sports-channel.jpg") center/cover no-repeat;
+    position: relative;
+}
+
+.hero-overlay {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 60px;
+    color: white;
+}
+
+.hero-overlay h1 {
+    font-size: 3rem;
+    margin: 0;
+    font-weight: 900;
+}
+
+.hero-overlay p {
+    font-size: 1.2rem;
+    margin-top: 10px;
+    color: #ffdeff;
+}
