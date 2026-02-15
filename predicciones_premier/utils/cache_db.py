@@ -3,9 +3,12 @@ Conexión a la base datos y guardado del análisis
 """
 import sqlite3
 from datetime import datetime
+import os
 
-DB_FILE = "data/gemini_cache.db"
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_FILE = os.path.join(BASE_DIR, "..", "data", "gemini_cache.db")
+# Crear carpeta si no existe
+os.makedirs(os.path.dirname(DB_FILE), exist_ok=True)
 
 def init_db():
     """
