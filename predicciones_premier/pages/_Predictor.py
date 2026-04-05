@@ -12,7 +12,7 @@ setup_page()
 st.image(
     IMAGES["premier_banner"],
     caption="Análisis profesional de la Premier League",
-    use_container_width=True,
+    width=700,
 )
 # Inicializar predictor (caché con session_state)
 if "predictor" not in st.session_state:

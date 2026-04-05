@@ -8,6 +8,18 @@ from components.header import show_header
 from components.footer import show_footer
 # from components.prediction_card import show_prediction_card
 from config import setup_page
+
+
+# Funcion para cargar CSS
+def load_css(file_path):
+    """
+    Función para aplicar estilos
+    """
+    with open(file_path, "r", encoding="utf-8") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+# Llamamos a la función con la ruta relativa
+load_css("assets/style.css")
 # Cargar Font Awesome
 st.markdown(
     '<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/'
@@ -31,7 +43,7 @@ st.image(
     "https://cdn.resfu.com/media/img_news/creatividad-del-analisis-del-inicio-de-"
     "la-premier-league-2025-26--besoccer.jpg?size=1000x&lossy=1",
     caption="Análisis profesional de la Premier League",
-    use_container_width=True,
+    width=800
 )
 # Sección: Equipos destacados
 st.markdown('<h3><i class="fa-solid fa-fire"></i> Equipos Destacados</h3>', unsafe_allow_html=True)
