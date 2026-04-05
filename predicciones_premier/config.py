@@ -1,426 +1,1038 @@
-# config.py - Configuración global
+# config.py - Configuración global - Dark Cyberpunk / Sports Analytics Theme
 import streamlit as st
 
 # =========================
 # COLORES PRINCIPALES
 # =========================
-PRIMARY_COLOR = "#00ff99"  # Verde neón: títulos, bordes, glow
-SECONDARY_COLOR = "#ffdd00"  # Amarillo neón: empate, acentos secundarios
-ERROR_COLOR = "#ff5555"  # Rojo: errores o alertas
-BACKGROUND_COLOR = "rgba(0,0,0,0.3)"  # Fondo semi-transparente para tarjetas
-APP_BG_GRADIENT = (
-    "linear-gradient(180deg, #0f0c29, #302b63, #24243e)"  # Fondo general de la app
-)
-SIDEBAR_GRADIENT = "linear-gradient(180deg, #2b004f, #0f172a)"  # Fondo del sidebar
+PRIMARY_COLOR = "#00ff88"       # Verde neón principal
+SECONDARY_COLOR = "#00d4ff"     # Cian neón
+ACCENT_COLOR = "#ff00ff"        # Magenta neón
+WARNING_COLOR = "#ffdd00"       # Amarillo neón
+ERROR_COLOR = "#ff4757"         # Rojo neón
+TEXT_COLOR = "#e0e0e0"          # Texto principal
+TEXT_MUTED = "#8892b0"          # Texto secundario
+BG_PRIMARY = "#0e1117"          # Fondo principal
+BG_SECONDARY = "#1a1c24"       # Fondo secundario
+BG_CARD = "rgba(255,255,255,0.03)"  # Fondo tarjetas
+GLASS_BG = "rgba(15, 23, 42, 0.6)"  # Glassmorphism
+GLASS_BORDER = "rgba(0, 255, 136, 0.15)"  # Borde glass
+NEON_GLOW = "0 0 15px rgba(0, 255, 136, 0.3)"  # Glow verde
+CYAN_GLOW = "0 0 15px rgba(0, 212, 255, 0.3)"  # Glow cian
 
 # =========================
 # ESTILOS DINÁMICOS PARA TARJETAS DE PREDICCIÓN
 # =========================
 PREDICTION_CARD_STYLE = f"""
-    background: {BACKGROUND_COLOR};       /* Fondo semi-transparente */
-    border: 2px solid {PRIMARY_COLOR};    /* Borde verde neón */
-    border-radius: 12px;                   /* Esquinas redondeadas */
-    padding: 20px;                         /* Espaciado interno */
-    margin-bottom: 20px;                   /* Separación de otros elementos */
-    box-shadow: 0 0 15px {PRIMARY_COLOR}; /* Sombra verde neón */
+    background: {GLASS_BG};
+    border: 1px solid {GLASS_BORDER};
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: {NEON_GLOW};
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 """
 
 PREDICTION_CARD_TITLE_STYLE = f"""
-    text-align: center;                    /* Centrar texto */
-    color: {PRIMARY_COLOR};                /* Color verde neón */
+    text-align: center;
+    color: {PRIMARY_COLOR};
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.5px;
 """
 
 
 def setup_page():
-    """Configura CSS global"""
+    """Configura CSS global - Dark Cyberpunk / Sports Analytics Theme"""
     st.markdown(
         """
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .stApp {
-            background: linear-gradient(180deg, #0f0c29, #302b63, #24243e);
-            color: #fff;
+        /* ============================================
+           GLOBAL RESET & BASE
+           ============================================ */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+        :root {
+            --neon-green: #00ff88;
+            --neon-cyan: #00d4ff;
+            --neon-magenta: #ff00ff;
+            --neon-yellow: #ffdd00;
+            --neon-red: #ff4757;
+            --bg-primary: #0e1117;
+            --bg-secondary: #1a1c24;
+            --bg-card: rgba(255,255,255,0.03);
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(0, 255, 136, 0.15);
+            --text-primary: #e0e0e0;
+            --text-muted: #8892b0;
         }
 
-        /* =========================
-        Contenedor principal (contenido)
-        ========================= */
-        main {
-            padding: 20px 40px;
-            background: transparent;  /* para que se vea el body/stApp */
+        .stApp {
+            background: linear-gradient(160deg, #0e1117 0%, #131620 30%, #1a1c24 60%, #0e1117 100%) !important;
+            color: var(--text-primary);
+            font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
         }
-        
+
+        /* Hide default Streamlit header & footer */
+        header[data-testid="stHeader"] {
+            background: transparent !important;
+            backdrop-filter: blur(10px);
+        }
+
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        .stDeployButton {display: none;}
+
+        /* ============================================
+           SCROLLBAR CUSTOM
+           ============================================ */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--neon-green), var(--neon-cyan));
+            border-radius: 10px;
+        }
+
+        /* ============================================
+           TYPOGRAPHY
+           ============================================ */
         h1, .stTitle h1 {
-            font-family: "Courier New", monospace;
-            font-size: 32px;
-            font-weight: 800;
-            color: #00ff99;             /* verde neón */
+            font-family: 'Inter', sans-serif !important;
+            font-size: 2.2rem !important;
+            font-weight: 900 !important;
+            color: #ffffff !important;
             text-align: center;
-            margin-bottom: 20px;
-            text-shadow: 0 0 6px #00ff99;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        /* Subtítulos */
+
         h2, h3, .stSubheader {
-            font-family: "Courier New", monospace;
-            font-weight: 700;
-            color: #fff;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
             margin-bottom: 12px;
+            letter-spacing: -0.5px;
         }
-        /* Imagen principal */
-        .stImage img {
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,255,153,0.3);
-            transition: all 0.4s ease-in-out;
+
+        h2 { font-size: 1.6rem !important; }
+        h3 { font-size: 1.3rem !important; }
+
+        p, li, span, div {
+            font-family: 'Inter', sans-serif;
         }
-        
-        .stImage img:hover {
-            transform: scale(1.03);
-            box-shadow: 0 0 30px rgba(0,255,153,0.6);
+
+        /* ============================================
+           MAIN CARD - Glassmorphism Container
+           ============================================ */
+        .main-card {
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 255, 136, 0.12);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
-        
-        /* Grid de logos de equipos */
-        .team-row {
-            display: inline-flex;
+
+        .main-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), var(--neon-cyan), transparent);
+            opacity: 0.6;
+        }
+
+        .main-card:hover {
+            border-color: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 255, 136, 0.08);
+            transform: translateY(-2px);
+        }
+
+        /* ============================================
+           PREDICTION HEADER
+           ============================================ */
+        .prediction-header {
+            text-align: center;
+            padding: 20px 0;
+            position: relative;
+        }
+
+        .prediction-header h2 {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 1.8rem !important;
+            font-weight: 900 !important;
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .prediction-header .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        /* ============================================
+           STAT BOX - Metric Cards
+           ============================================ */
+        .stat-box {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-box:hover {
+            border-color: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .stat-box:hover::after {
+            opacity: 1;
+        }
+
+        .stat-box .stat-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .stat-box .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+        }
+
+        .stat-box .stat-value {
+            font-family: 'Inter', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1;
+        }
+
+        .stat-box .stat-value.green { color: var(--neon-green); text-shadow: 0 0 20px rgba(0,255,136,0.4); }
+        .stat-box .stat-value.cyan { color: var(--neon-cyan); text-shadow: 0 0 20px rgba(0,212,255,0.4); }
+        .stat-box .stat-value.yellow { color: var(--neon-yellow); text-shadow: 0 0 20px rgba(255,221,0,0.4); }
+        .stat-box .stat-value.red { color: var(--neon-red); text-shadow: 0 0 20px rgba(255,71,87,0.4); }
+        .stat-box .stat-value.magenta { color: var(--neon-magenta); text-shadow: 0 0 20px rgba(255,0,255,0.4); }
+
+        /* ============================================
+           PROBABILITY CARDS (Home/Draw/Away)
+           ============================================ */
+        .prob-container {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin: 24px 0;
+        }
+
+        .prob-card {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 24px 16px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prob-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .prob-card.home::before { background: linear-gradient(90deg, #00ff88, #00cc6a); }
+        .prob-card.draw::before { background: linear-gradient(90deg, #ffdd00, #ffaa00); }
+        .prob-card.away::before { background: linear-gradient(90deg, #ff4757, #ff6b81); }
+
+        .prob-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .prob-card .prob-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .prob-card.home .prob-label { color: var(--neon-green); }
+        .prob-card.draw .prob-label { color: var(--neon-yellow); }
+        .prob-card.away .prob-label { color: var(--neon-red); }
+
+        .prob-card .prob-value {
+            font-family: 'Inter', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .prob-card.home .prob-value { color: var(--neon-green); text-shadow: 0 0 30px rgba(0,255,136,0.3); }
+        .prob-card.draw .prob-value { color: var(--neon-yellow); text-shadow: 0 0 30px rgba(255,221,0,0.3); }
+        .prob-card.away .prob-value { color: var(--neon-red); text-shadow: 0 0 30px rgba(255,71,87,0.3); }
+
+        .prob-card .prob-percent {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* ============================================
+           MATCH CARD (Fixtures)
+           ============================================ */
+        .match-card {
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 136, 0.08);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .match-card:hover {
+            border-color: rgba(0, 255, 136, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.06);
+            transform: translateX(4px);
+        }
+
+        .match-card .team-info {
+            display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 10px 20px;
-            transition: all 0.3s ease-in-out;
+            min-width: 120px;
         }
 
-        .team-row img {
-            width: 80px;
-            height: 80px;
+        .match-card .team-info img {
+            width: 44px;
+            height: 44px;
             object-fit: contain;
-            border-radius: 8px;
-            filter: drop-shadow(0 0 8px #00ff99);
-            transition: all 0.3s ease-in-out;
+            margin-bottom: 6px;
+            filter: drop-shadow(0 0 6px rgba(0,255,136,0.3));
         }
 
-        .team-row img:hover {
-            transform: scale(1.1);
-            filter: drop-shadow(0 0 15px #00ff99);
-        }
-        
-        .team-row span {
-            margin-top: 6px;
-            font-family: "Courier New", monospace;
+        .match-card .team-info .team-name {
+            font-size: 0.8rem;
             font-weight: 700;
-            color: #00ff99;
+            color: #ffffff;
             text-align: center;
         }
 
-        
-        /* Botones principales */
-        div.stButton > button {
-            background-color: #0f172a;    /* Azul principal */
-            color: #00ff99;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 10px;
-            padding: 12px 0;
-            margin: 8px 0;
-            transition: all 0.3s ease-in-out;
-        }
-        
-        div.stButton > button:hover {
-            background-color: #0f172a;
-            color: #00ff99;
-            transform: translateY(-2px);
-            box-shadow: 0 0 12px rgba(0,255,153,0.7);
-            border-color: #00ff99;
+        .match-card .match-meta {
+            text-align: center;
+            flex: 1;
         }
 
-        .stInfo {
-            background: rgba(0,255,150,0.1);
-            border-left: 4px solid #00ff99;
-            color: #00ff99;
-            padding: 12px;
-            border-radius: 10px;
-            font-family: "Courier New", monospace;
+        .match-card .match-meta .vs-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px rgba(0,212,255,0.3);
         }
 
-        .logo{
-            border-radius: 0%;
+        .match-card .match-meta .match-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
         }
-        .sub-header {
-            text-align: center;
-            color: #666;
-            margin-bottom: 2.5rem;
-            font-size: 1.3rem;
+
+        .match-card .match-meta .match-time {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--neon-green);
         }
-        .stButton > button {
-            font-weight: bold;
-            font-size: 1.1rem;
+
+        /* ============================================
+           AI CONSOLE - Hacker Style
+           ============================================ */
+        .ai-console {
+            background: rgba(10, 14, 20, 0.9);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 16px;
+            padding: 0;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
         }
-        .footer {
-            text-align: center;
-            color: #888;
-            font-size: 0.9rem;
-            margin-top: 3rem;
-            padding-top: 1.5rem;
-            border-top: 2px solid #eee;
+
+        .ai-console::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan), var(--neon-magenta), var(--neon-green));
+            background-size: 300% 300%;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderGlow 4s ease infinite;
+            pointer-events: none;
         }
-            
-        .team-row {
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .ai-console-header {
+            background: rgba(0, 255, 136, 0.05);
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
         }
-        
-        .team-row img {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            border-radius: 8px;
-            transition: all 0.3s ease-in-out;
-        }
-        
-        .team-row img:hover {
-            transform: scale(1.1);
-            filter: none;
-        }
-        .team-row span {
-            font-weight: bold;
-            font-size: 16px;
-        }    
-        
 
+        .ai-console-header .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .ai-console-header .dot.red { background: #ff4757; box-shadow: 0 0 6px #ff4757; }
+        .ai-console-header .dot.yellow { background: #ffdd00; box-shadow: 0 0 6px #ffdd00; }
+        .ai-console-header .dot.green { background: #00ff88; box-shadow: 0 0 6px #00ff88; }
+
+        .ai-console-header .console-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--neon-green);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .ai-console-body {
+            padding: 20px 24px;
+            color: var(--neon-green);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .ai-console-body .ai-line {
+            opacity: 0;
+            animation: typeIn 0.3s ease forwards;
+        }
+
+        .ai-console-body .ai-line:nth-child(1) { animation-delay: 0.1s; }
+        .ai-console-body .ai-line:nth-child(2) { animation-delay: 0.2s; }
+        .ai-console-body .ai-line:nth-child(3) { animation-delay: 0.3s; }
+        .ai-console-body .ai-line:nth-child(4) { animation-delay: 0.4s; }
+        .ai-console-body .ai-line:nth-child(5) { animation-delay: 0.5s; }
+        .ai-console-body .ai-line:nth-child(6) { animation-delay: 0.6s; }
+        .ai-console-body .ai-line:nth-child(7) { animation-delay: 0.7s; }
+        .ai-console-body .ai-line:nth-child(8) { animation-delay: 0.8s; }
+        .ai-console-body .ai-line:nth-child(9) { animation-delay: 0.9s; }
+        .ai-console-body .ai-line:nth-child(10) { animation-delay: 1.0s; }
+
+        @keyframes typeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-console-body .highlight-green { color: var(--neon-green); font-weight: 700; }
+        .ai-console-body .highlight-cyan { color: var(--neon-cyan); font-weight: 700; }
+        .ai-console-body .highlight-yellow { color: var(--neon-yellow); font-weight: 700; }
+        .ai-console-body .highlight-red { color: var(--neon-red); font-weight: 700; }
+
+        /* ============================================
+           TEAM GRID (Home Page)
+           ============================================ */
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .team-card {
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 255, 136, 0.08);
+            border-radius: 16px;
+            padding: 20px 12px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: default;
+        }
+
+        .team-card:hover {
+            border-color: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.1);
+            transform: translateY(-6px);
+        }
+
+        .team-card img {
+            width: 56px;
+            height: 56px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 8px rgba(0,255,136,0.2));
+            transition: all 0.3s ease;
+        }
+
+        .team-card:hover img {
+            filter: drop-shadow(0 0 16px rgba(0,255,136,0.5));
+            transform: scale(1.1);
+        }
+
+        .team-card .team-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* ============================================
+           NAV BUTTONS (Home Page)
+           ============================================ */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .nav-btn {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            border-radius: 16px;
+            padding: 24px 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none !important;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .nav-btn .nav-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .nav-btn .nav-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .nav-btn .nav-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ============================================
+           HERO BANNER
+           ============================================ */
+        .hero-banner {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
+
+        .hero-banner img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            border-radius: 20px;
+            filter: brightness(0.6);
+        }
+
+        .hero-banner .hero-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            background: linear-gradient(transparent, rgba(14, 17, 23, 0.95));
+        }
+
+        .hero-banner .hero-overlay h2 {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 1.6rem !important;
+            font-weight: 900 !important;
+            color: #ffffff !important;
+            margin: 0 0 6px 0;
+        }
+
+        .hero-banner .hero-overlay p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* ============================================
+           BADGE / PILL
+           ============================================ */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .badge.green {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .badge.cyan {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .badge.yellow {
+            background: rgba(255, 221, 0, 0.1);
+            color: var(--neon-yellow);
+            border: 1px solid rgba(255, 221, 0, 0.2);
+        }
+
+        /* ============================================
+           STREAMLIT OVERRIDES
+           ============================================ */
+        /* Main content area */
+        main .block-container {
+            padding: 2rem 3rem !important;
+            max-width: 1200px;
+        }
+
+        /* Image styling */
+        .stImage img {
+            border-radius: 16px;
+            transition: all 0.4s ease;
+        }
+
+        .stImage img:hover {
+            box-shadow: 0 0 30px rgba(0,255,136,0.15);
+        }
+
+        /* Buttons */
+        div.stButton > button {
+            background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,212,255,0.1)) !important;
+            color: var(--neon-green) !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 0.9rem !important;
+            font-weight: 700 !important;
+            border: 1px solid rgba(0, 255, 136, 0.2) !important;
+            border-radius: 12px !important;
+            padding: 12px 24px !important;
+            transition: all 0.3s ease !important;
+            letter-spacing: 0.5px;
+        }
+
+        div.stButton > button:hover {
+            background: linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,212,255,0.2)) !important;
+            border-color: var(--neon-green) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2) !important;
+            transform: translateY(-2px);
+        }
+
+        div.stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, #00ff88, #00d4ff) !important;
+            color: #0e1117 !important;
+            border: none !important;
+            font-weight: 800 !important;
+            font-size: 1rem !important;
+            letter-spacing: 1px;
+        }
+
+        div.stButton > button[kind="primary"]:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4) !important;
+            transform: translateY(-2px);
+        }
+
+        /* Selectbox */
+        div[data-baseweb="select"] {
+            font-family: 'Inter', sans-serif;
+        }
+
+        div[data-baseweb="select"] > div {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgba(0, 255, 136, 0.15) !important;
+            border-radius: 12px !important;
+            color: #ffffff !important;
+        }
+
+        div[data-baseweb="select"] > div:hover {
+            border-color: rgba(0, 255, 136, 0.4) !important;
+        }
+
+        /* Tabs */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 8px;
+            background: transparent;
+        }
+
+        .stTabs [data-baseweb="tab"] {
+            background: rgba(15, 23, 42, 0.5) !important;
+            border: 1px solid rgba(0, 255, 136, 0.1) !important;
+            border-radius: 12px !important;
+            color: var(--text-muted) !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 600 !important;
+            padding: 10px 20px !important;
+            transition: all 0.3s ease;
+        }
+
+        .stTabs [data-baseweb="tab"]:hover {
+            border-color: rgba(0, 255, 136, 0.3) !important;
+            color: #ffffff !important;
+        }
+
+        .stTabs [aria-selected="true"] {
+            background: rgba(0, 255, 136, 0.1) !important;
+            border-color: var(--neon-green) !important;
+            color: var(--neon-green) !important;
+        }
+
+        .stTabs [data-baseweb="tab-highlight"] {
+            display: none;
+        }
+
+        .stTabs [data-baseweb="tab-border"] {
+            display: none;
+        }
+
+        /* Expander */
+        .streamlit-expanderHeader {
+            background: rgba(15, 23, 42, 0.5) !important;
+            border: 1px solid rgba(0, 255, 136, 0.1) !important;
+            border-radius: 12px !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 700 !important;
+            color: var(--neon-green) !important;
+        }
+
+        /* Dataframe */
+        .stDataFrame {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        /* Progress bar */
+        .stProgress > div > div > div > div {
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan)) !important;
+        }
+
+        /* Slider */
+        .stSlider > div > div > div > div {
+            background: var(--neon-green) !important;
+        }
+
+        /* Checkbox */
+        .stCheckbox label span {
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        /* Info/Warning/Error boxes */
+        .stAlert {
+            border-radius: 12px !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        /* Spinner */
+        .stSpinner > div {
+            border-top-color: var(--neon-green) !important;
+        }
+
+        /* ============================================
+           SIDEBAR - Professional Dark Theme
+           ============================================ */
+        section[data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #0a0e14 0%, #131620 50%, #0a0e14 100%) !important;
+        }
+
+        div[data-testid="stSidebarContent"] {
+            background: transparent !important;
+            padding: 20px 16px !important;
+        }
+
+        /* Sidebar logo */
         section[data-testid="stSidebar"] img {
             display: block;
-            margin: 0 auto; 
-            opacity: 0.85;
+            margin: 0 auto;
+            opacity: 0.9;
             transition: all 0.4s ease;
-            border-radius: 8px; 
-            filter: brightness(1) drop-shadow(0 0 0px #00ff99);
+            border-radius: 8px;
+            filter: drop-shadow(0 0 8px rgba(0,255,136,0.2));
         }
 
         section[data-testid="stSidebar"] img:hover {
             opacity: 1;
             transform: scale(1.05);
-            filter: brightness(1.3) drop-shadow(0 0 15px #00ff99);
-            box-shadow: 0 0 20px rgba(0, 255, 153, 0.6);
-            animation: glow 1s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 20px rgba(0,255,136,0.5));
         }
-        
-        @keyframes glow {
-            from { filter: brightness(1.3) drop-shadow(0 0 10px #00ff99); }
-            to { filter: brightness(1.5) drop-shadow(0 0 20px #00ff99); }
-        }
-        /* ===============================
-        MENÚ MULTIPAGE STREAMLIT FIX
-        ================================ */
 
-        /* Contenedor */
+        /* Sidebar navigation */
         [data-testid="stSidebarNav"] {
-            margin-top: 20px;
+            margin-top: 16px;
         }
 
-        /* Cada item */
         [data-testid="stSidebarNav"] li {
-            font-family: "Lucida Console", "Courier New", monospace;
+            font-family: 'Inter', sans-serif;
             width: 100%;
         }
 
-
-        /* Activo */
-        /* Todos normales */
         [data-testid="stSidebarNav"] a {
             width: 100% !important;
             display: flex !important;
             align-items: center;
-
-            padding: 12px 14px;
-            border-radius: 14px;
-
-            font-size: 16px;
-            font-weight: 700;
-
-            color: white !important;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted) !important;
             text-decoration: none !important;
-
-            background: rgba(255,255,255,0.05);
-            border-left: 4px solid transparent;
-
-            transition: all 0.25s ease-in-out;
+            background: transparent;
+            border-left: 3px solid transparent;
+            transition: all 0.25s ease;
         }
 
-
-        /* Hover */
         [data-testid="stSidebarNav"] a:hover {
-            background: rgba(0,255,150,0.15);
-            border-left: 4px solid #00ff99;
-            transform: translateX(6px)
+            background: rgba(0, 255, 136, 0.06);
+            border-left: 3px solid var(--neon-green);
+            color: #ffffff !important;
+            transform: translateX(4px);
         }
 
-        /* Activo */
         [data-testid="stSidebarNav"] a[aria-current="page"] {
-            background: rgba(0,255,150,0.30);
-            border-left: 4px solid #00ff99;
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 3px solid var(--neon-green);
+            color: var(--neon-green) !important;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.08);
         }
 
-        div[data-testid="stSidebarContent"] {
-            background: linear-gradient(180deg, #2b004f, #0f172a) !important;
-        }
-
-        
-        div[data-testid="stSidebarContent"] {
-            background: linear-gradient(180deg, #2b004f, #0f172a) !important;
-        }
-
-        /* ===========================
-        Sidebar Box y Títulos
-        =========================== */
-
-        /* Título principal de sidebar */
+        /* Sidebar custom boxes */
         .sidebar-title {
-            font-size: 20px;
-            font-family: "Lucida Console", "Courier New", monospace;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
             font-weight: 700;
-            color: #00ff99;          /* Verde neon tipo PL */
+            color: var(--neon-green);
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
-        /* Caja principal que contiene el contenido */
         .sidebar-box {
-            background: rgba(255, 255, 255, 0.05);  /* fondo oscuro semi-transparente */
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border-left: 4px solid #00ff99;
-            transition: all 0.3s ease-in-out;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 255, 136, 0.08);
+            transition: all 0.3s ease;
         }
 
-        /* Hover efecto en toda la caja */
         .sidebar-box:hover {
-            background: rgba(0, 255, 150, 0.1);
-            transform: translateY(-2px);
+            background: rgba(0, 255, 136, 0.04);
+            border-color: rgba(0, 255, 136, 0.15);
         }
 
-        /* Subtítulos dentro de la caja */
         .sidebar-box h3 {
-            font-size: 16px;
-            font-family: "Courier New", monospace;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
             font-weight: 700;
             color: #ffffff;
             margin-bottom: 10px;
         }
 
-        /* Listas ordenadas */
-        .sidebar-box ol,
-        .sidebar-box ul {
-            padding-left: 20px;
-            color: #ddd;
-            font-family: "Courier New", monospace;
-            font-size: 15px;
+        .sidebar-box ol, .sidebar-box ul {
+            padding-left: 18px;
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
         }
 
-        /* Elementos de la lista */
         .sidebar-box li {
             margin-bottom: 6px;
+            line-height: 1.5;
         }
 
-        /* Negrita dentro de listas */
         .sidebar-box b {
-            color: #00ff99;
+            color: var(--neon-green);
         }
 
-        /* Ajuste general del sidebar */
-        section[data-testid="stSidebar"] {
-            background: linear-gradient(180deg, #0f172a, #1e293b);
-            padding: 25px;
-        }
-
-        /* Para hacer que los links del sidebar y cajas se vean uniformes */
-        [data-testid="stSidebarContent"] {
-            padding-top: 20px;
-        }
-
-
-        /* Contenedor del header */
+        /* ============================================
+           HEADER CONTAINER
+           ============================================ */
         .header-container {
             display: flex;
             flex-direction: column;
-            align-items: center;       /* centra horizontalmente */
+            align-items: center;
             justify-content: center;
-            margin-bottom: 30px;
-            padding: 20px 0;
+            margin-bottom: 24px;
+            padding: 24px 0 8px 0;
         }
 
-        
-
-        /* Imagen del logo del header */
         .header-container img {
-            max-width: 90px;
+            max-width: 80px;
             height: auto;
             border-radius: 8px;
             transition: all 0.4s ease;
-            filter: brightness(1) drop-shadow(0 0 0px #00ff99);
-        }
-        
-        /* Hover en la imagen: glow + zoom */
-        .header-container img:hover {
-            transform: scale(1.08);
-            filter: brightness(1.3) drop-shadow(0 0 15px #00ff99);
-            box-shadow: 0 0 25px rgba(0, 255, 153, 0.6);
-            animation: glowHeader 1s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 10px rgba(0,255,136,0.2));
         }
 
-        /* Animación glow */
-        @keyframes glowHeader {
-            from { filter: brightness(1.3) drop-shadow(0 0 10px #00ff99); }
-            to   { filter: brightness(1.5) drop-shadow(0 0 20px #00ff99); }
+        .header-container img:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 20px rgba(0,255,136,0.5));
         }
 
         .header-container .sub-header {
-            font-family: "Courier New", monospace;
-            font-size: 16px;
-            font-weight: 600;
-            color: #00ff99;                  /* verde neón para resaltar */
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
             text-align: center;
             margin-top: 10px;
-            text-shadow: 0 0 5px #00ff99;    /* resplandor leve del texto */
         }
-        
+
         .header-container .sub-header.gradient {
-            background: linear-gradient(90deg, #00ff99, #00ccff);
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-weight: 600;
         }
-        
+
+        /* ============================================
+           FOOTER
+           ============================================ */
         .footer {
             text-align: center;
-            color: #ccc;                   /* gris claro para no competir con el verde neón */
-            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
             margin-top: 3rem;
-            padding: 20px 15px 40px 15px;
-            border-top: 2px solid rgba(0,255,153,0.3); /* línea superior verde neón suave */
-            font-family: "Courier New", monospace;
-            background: rgba(15,23,42,0.8); /* fondo semi-transparente oscuro */
-            border-radius: 12px;
-            transition: all 0.3s ease-in-out;
-        }
-        
-        /* Hover opcional para resaltar el footer */
-        .footer:hover {
-            background: rgba(0,255,150,0.08);
+            padding: 24px 20px;
+            border-top: 1px solid rgba(0, 255, 136, 0.08);
+            font-family: 'Inter', sans-serif;
+            background: rgba(10, 14, 20, 0.5);
+            border-radius: 16px;
         }
 
-        /* Párrafos del footer */
+        .footer:hover {
+            background: rgba(0, 255, 136, 0.02);
+        }
+
         .footer p {
             margin: 4px 0;
-            line-height: 1.4;
-        }
-        
-        .footer p span,
-        .footer p i {
-            font-weight: bold;
-            color: #00ff99; /* verde neón */
-            text-shadow: 0 0 4px #00ff99;
+            line-height: 1.5;
         }
 
+        .footer p span, .footer p i {
+            font-weight: 600;
+            color: var(--neon-green);
+        }
+
+        /* ============================================
+           DIVIDER
+           ============================================ */
+        .cyber-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,255,136,0.3), rgba(0,212,255,0.3), transparent);
+            margin: 24px 0;
+            border: none;
+        }
+
+        /* ============================================
+           LOADING ANIMATION
+           ============================================ */
+        .pulse-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 768px) {
+            .prob-container { flex-direction: column; }
+            .nav-grid { grid-template-columns: 1fr; }
+            .teams-grid { grid-template-columns: repeat(2, 1fr); }
+            main .block-container { padding: 1rem 1rem !important; }
+        }
 
     </style>
     """,
