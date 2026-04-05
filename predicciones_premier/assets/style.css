@@ -1,0 +1,20 @@
+.team-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.team-row img {
+    width: 50px;
+    /* tamaño de los logos */
+    height: auto;
+    /* mantiene proporción */
+    border-radius: 10px;
+}
+
+.team-row span {
+    font-weight: bold;
+    font-size: 18px;
+    color: #333;
+}
